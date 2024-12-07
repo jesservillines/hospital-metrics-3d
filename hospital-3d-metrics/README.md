@@ -60,6 +60,8 @@ hospital-3d-metrics/
 │   ├── data/
 │   │   └── initial_metrics.csv
 │   └── requirements.txt
+└── README.md
+└── app_demo.jpg
 ```
 
 ## Setup Instructions
