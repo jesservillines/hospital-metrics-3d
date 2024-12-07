@@ -171,3 +171,6 @@ Filters metrics based on provided criteria
 
 ## License
 [MIT License](LICENSE)
+
+## Contact the Author
+- Please reach to the author at: https://www.linkedin.com/in/jesse-villines/ if you have questions! 
