@@ -2,6 +2,8 @@
 
 A 3D visualization dashboard for hospital metrics using React Three Fiber and FastAPI. This project provides an interactive 3D representation of hospital buildings with real-time metrics visualization.
 
+![Alt text](app_demo.jpg "Demo of 3d Hospital App")
+
 ## Project Overview
 
 This application visualizes hospital metrics across different floors and buildings in a 3D environment, allowing for intuitive data exploration and comparison. The visualization includes:
