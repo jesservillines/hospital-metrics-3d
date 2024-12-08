@@ -1,17 +1,19 @@
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
-import { Building } from './Building'
-import { Bridge } from './Bridge'
-import { Garden } from './Garden'
-import { Controls } from './Controls'
-import { MetricsPanel } from './MetricsPanel'
-import { useState, useEffect } from 'react'
-import { useMetrics } from '../hooks/useMetrics'
-import * as THREE from 'three'
+// frontend/src/components/HospitalView.tsx
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { Building } from './Building';
+import { Bridge } from './Bridge';
+import { Garden } from './Garden';
+import { Controls } from './Controls';
+import { MetricsPanel } from './MetricsPanel';
+import { FloorDetail } from './FloorDetail';
+import { useState, useEffect } from 'react';
+import * as THREE from 'three';
+import { useMetrics } from '../hooks/useMetrics';
 
-// Building configs remain the same...
-const FLOOR_HEIGHT = 3
-const BUILDING_SPACING = 30
+// Define building dimensions and positions
+const FLOOR_HEIGHT = 3;
+const BUILDING_SPACING = 30;
 const buildingConfigs = {
   West: {
     floors: 4,
@@ -25,44 +27,83 @@ const buildingConfigs = {
     depth: 25,
     position: new THREE.Vector3(-5, 0, BUILDING_SPACING/2)
   }
-}
+};
 
-const CRAIG_BLUE = '#007dc3'
+// Craig Hospital blue color
+const CRAIG_BLUE = '#007dc3';
 
 export const HospitalView = () => {
-  const [hoveredFloor, setHoveredFloor] = useState<string | null>(null)
-  const [selectedFloor, setSelectedFloor] = useState<string | null>(null)
-  const [currentMetric, setCurrentMetric] = useState<string>('patient_satisfaction')
-  const { metrics, loading, error, fetchMetrics } = useMetrics()
+  // State management
+  const [hoveredFloor, setHoveredFloor] = useState<string | null>(null);
+  const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
+  const [selectedMetric, setSelectedMetric] = useState<string>('patient_satisfaction');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Patient Metrics', 'Staff Metrics']);
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['patient_satisfaction', 'fall_risk', 'staff_retention']);
+  const [showFloorDetail, setShowFloorDetail] = useState(false);
 
-  // Transform metrics data for buildings
-  const metricsByFloor = metrics.reduce((acc, metric) => {
-    if (metric.metric_name === currentMetric) {
-      acc[metric.floor] = metric.value
-    }
-    return acc
-  }, {} as Record<string, number>)
+  // Fetch metrics using the custom hook
+  const { metrics, loading, error, fetchMetrics } = useMetrics();
 
-  // Fetch metrics when component mounts or metric changes
   useEffect(() => {
-    fetchMetrics(undefined, currentMetric)
-  }, [currentMetric])
+    fetchMetrics();
+  }, []);
 
-  // Available metrics for the Controls component
-  const availableMetrics = ['patient_satisfaction', 'staff_retention', 'fall_risk']
+  // Handle metric selection change
+  const handleMetricChange = (metric: string) => {
+    setSelectedMetric(metric);
+  };
+
+  // Handle category selection change
+  const handleCategoryChange = (categories: string[]) => {
+    setSelectedCategories(categories);
+  };
+
+  // Handle metrics selection change
+  const handleMetricsSelectionChange = (metrics: string[]) => {
+    setSelectedMetrics(metrics);
+  };
+
+  // Handle floor click for floor detail view
+  const handleFloorClick = (floor: string) => {
+    if (selectedFloor === floor) {
+      setSelectedFloor(null);
+      setShowFloorDetail(false);
+    } else {
+      setSelectedFloor(floor);
+      setShowFloorDetail(true);
+    }
+  };
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+    <div className="w-screen h-screen">
+      <Controls
+        onMetricChange={handleMetricChange}
+        onCategoryChange={handleCategoryChange}
+        onMetricsSelectionChange={handleMetricsSelectionChange}
+        selectedMetric={selectedMetric}
+        selectedCategories={selectedCategories}
+        selectedMetrics={selectedMetrics}
+      />
+
+      <MetricsPanel
+        hoveredFloor={hoveredFloor}
+        selectedFloor={selectedFloor}
+        metrics={metrics || []}
+        selectedCategories={selectedCategories}
+        selectedMetrics={selectedMetrics}
+      />
+
       <Canvas shadows>
-        {/* Camera and lighting setup remains the same... */}
-        <PerspectiveCamera makeDefault position={[50, 30, 0]} />
+        <PerspectiveCamera makeDefault position={[75, 45, 0]} />
         <OrbitControls
           enableDamping
           dampingFactor={0.05}
-          minDistance={20}
-          maxDistance={100}
+          minDistance={30}
+          maxDistance={150}
           maxPolarAngle={Math.PI / 2}
         />
+
+        {/* Lighting */}
         <ambientLight intensity={0.5} />
         <directionalLight
           position={[20, 20, 0]}
@@ -72,7 +113,7 @@ export const HospitalView = () => {
           shadow-mapSize-height={2048}
         />
 
-        {/* Ground plane remains the same... */}
+        {/* Ground */}
         <mesh
           rotation-x={-Math.PI / 2}
           receiveShadow
@@ -82,8 +123,8 @@ export const HospitalView = () => {
           <meshStandardMaterial color="#a0a0a0" />
         </mesh>
 
-        {/* Buildings with metric data */}
-        {Object.entries(buildingConfigs).map(([name, config]) => (
+{/* Buildings */}
+        {!showFloorDetail && Object.entries(buildingConfigs).map(([name, config]) => (
           <Building
             key={name}
             name={name}
@@ -94,62 +135,55 @@ export const HospitalView = () => {
             floorCount={config.floors}
             floorHeight={FLOOR_HEIGHT}
             onHoverFloor={setHoveredFloor}
-            onSelectFloor={setSelectedFloor}
+            onSelectFloor={handleFloorClick}
             hoveredFloor={hoveredFloor}
             selectedFloor={selectedFloor}
             selectedColor={CRAIG_BLUE}
-            metricData={metricsByFloor}
-            currentMetric={currentMetric}
+            metrics={metrics || []}
+            selectedMetric={selectedMetric}
             rotation={[0, Math.PI / 2, 0]}
           />
         ))}
 
-        {/* Bridge and Garden components remain the same... */}
-        <Bridge
-          position={[-10, FLOOR_HEIGHT * 1.5, 1]}
-          length={4}
-          width={BUILDING_SPACING/1.75}
-          height={FLOOR_HEIGHT-5.5}
-          rotation={[0, 0, 0]}
-        />
-        <Bridge
-          position={[-10, FLOOR_HEIGHT * 2.5, 1]}
-          length={4}
-          width={BUILDING_SPACING/1.75}
-          height={FLOOR_HEIGHT-5.5}
-          rotation={[0, 0, 0]}
-        />
-        <Garden
-          position={[15, 0, BUILDING_SPACING/2]}
-          width={8}
-          depth={12}
-        />
+        {showFloorDetail && selectedFloor && (
+          <FloorDetail
+            floorData={getFloorData(selectedFloor)}
+            onClose={() => {
+              setSelectedFloor(null);
+              setShowFloorDetail(false);
+            }}
+          />
+        )}
+
+        {/* Bridges */}
+        {!showFloorDetail && (
+          <>
+            <Bridge
+              position={[-10, FLOOR_HEIGHT * 1.5, 1]}
+              length={4}
+              width={BUILDING_SPACING/1.75}
+              height={FLOOR_HEIGHT-5.5}
+              rotation={[0, 0, 0]}
+            />
+            <Bridge
+              position={[-10, FLOOR_HEIGHT * 2.5, 1]}
+              length={4}
+              width={BUILDING_SPACING/1.75}
+              height={FLOOR_HEIGHT-5.5}
+              rotation={[0, 0, 0]}
+            />
+          </>
+        )}
+
+        {/* Garden */}
+        {!showFloorDetail && (
+          <Garden
+            position={[15, 0, BUILDING_SPACING/2]}
+            width={8}
+            depth={12}
+          />
+        )}
       </Canvas>
-
-      {/* UI Controls */}
-      <Controls
-        onMetricChange={setCurrentMetric}
-        onDateRangeChange={() => {}} // To be implemented
-        metrics={availableMetrics}
-      />
-
-      {/* Metrics Panel */}
-      <MetricsPanel
-        selectedFloor={selectedFloor}
-        metrics={metrics.filter(m => m.floor === selectedFloor)}
-      />
-
-      {/* Loading and Error States */}
-      {loading && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-4 py-2 rounded-md">
-          Loading metrics...
-        </div>
-      )}
-      {error && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-100 text-red-700 px-4 py-2 rounded-md">
-          Error loading metrics: {error}
-        </div>
-      )}
     </div>
-  )
-}
+  );
+};

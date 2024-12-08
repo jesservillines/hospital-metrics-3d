@@ -10,25 +10,34 @@ This application visualizes hospital metrics across different floors and buildin
 - Two main buildings (East and West)
 - Connected bridges
 - Garden area
-- Interactive floor selection
+- Interactive floor selection with hover states
 - Real-time metrics display
 - Heat map visualization of metrics
+
+### Building Layout
+- West Building: 4 floors (1 West - 4 West)
+- East Building: 3 floors (1 East - 3 East)
+- Connected bridges at specific floors
+- Adjacent garden area
 
 ### Current Features
 - 3D visualization of hospital buildings
 - Interactive floor selection with hover and click states
+- Dynamic metric filtering by categories:
+  - Patient Metrics
+  - Staff Metrics
 - Real-time metrics data display
-- Building layout:
-  - West Building: 4 floors (1 West - 4 West)
-  - East Building: 3 floors (1 East - 3 East)
-  - Connected bridges at specific floors
-  - Adjacent garden area
-- Metrics visualization:
+- Heat map visualization for selected metrics
+- Metrics currently tracked:
   - Patient satisfaction
   - Staff retention
   - Fall risk
-- Controls panel for metric selection
-- Detailed metrics display for selected floors
+- Customizable metric display:
+  - Category filtering
+  - Multi-select metric display
+  - Individual metric heat map visualization
+- Controls panel for metric selection and filtering
+- Detailed metrics panel for hover interactions
 
 ## Project Structure
 ```
@@ -61,7 +70,6 @@ hospital-3d-metrics/
 │   │   └── initial_metrics.csv
 │   └── requirements.txt
 └── README.md
-└── app_demo.jpg
 ```
 
 ## Setup Instructions
@@ -94,8 +102,7 @@ npm install
 
 2. Install required packages:
 ```bash
-npm install d3
-npm install --save-dev @types/d3
+npm install d3 @types/d3 three @react-three/fiber @react-three/drei
 ```
 
 3. Set up shadcn/ui:
@@ -110,9 +117,12 @@ Select the following options:
 
 4. Add required components:
 ```bash
-npx shadcn@latest add card
-npx shadcn@latest add select
-npx shadcn@latest add slider
+npx shadcn-ui@latest add card
+npx shadcn-ui@latest add select
+npx shadcn-ui@latest add checkbox
+npx shadcn-ui@latest add command
+npx shadcn-ui@latest add popover
+npx shadcn-ui@latest add button
 ```
 
 5. Start the development server:
@@ -123,8 +133,7 @@ The frontend will run on http://localhost:5173
 
 ## Technologies Used
 - Frontend:
-  - React
-  - TypeScript
+  - React + TypeScript
   - Three.js / React Three Fiber
   - shadcn/ui
   - Tailwind CSS
@@ -134,19 +143,6 @@ The frontend will run on http://localhost:5173
   - FastAPI
   - Pandas
   - Pydantic
-
-## Future Development
-Planned features and improvements:
-- [ ] Implement date range filtering
-- [ ] Add metric comparison features
-- [ ] Add animation transitions for metric changes
-- [ ] Implement "explode view" feature
-- [ ] Add 2D floor plan view option
-- [ ] Enhance heat map visualization
-- [ ] Add more metrics and data points
-- [ ] Implement real-time data updates
-- [ ] Add user authentication
-- [ ] Enhance mobile responsiveness
 
 ## API Documentation
 The backend provides the following endpoints:
@@ -164,6 +160,22 @@ Filters metrics based on provided criteria
   - start_date (optional)
   - end_date (optional)
 
+## Future Development
+Planned features and improvements:
+- [ ] Implement exploded floor view with patient room details
+- [ ] Add date range filtering
+- [ ] Add metric comparison features
+- [ ] Add animation transitions for metric changes
+- [ ] Add 2D floor plan view option
+- [ ] Enhance heat map visualization with legend
+- [ ] Add more metrics and data points
+- [ ] Implement real-time data updates
+- [ ] Add user authentication
+- [ ] Enhance mobile responsiveness
+
+## Note
+All information displayed is demo data and not representative of real patient information.
+
 ## Contributing
 1. Fork the repository
 2. Create a feature branch
@@ -174,5 +186,5 @@ Filters metrics based on provided criteria
 ## License
 [MIT License](LICENSE)
 
-## Contact the Author
-- Please reach to the author at: https://www.linkedin.com/in/jesse-villines/ if you have questions! 
+## Contact
+Please reach out to the author at: https://www.linkedin.com/in/jesse-villines/ if you have questions!
