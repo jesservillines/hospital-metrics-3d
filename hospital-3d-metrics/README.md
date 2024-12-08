@@ -13,31 +13,51 @@ This application visualizes hospital metrics across different floors and buildin
 - Interactive floor selection with hover states
 - Real-time metrics display
 - Heat map visualization of metrics
+- Exploded floor view with detailed room layouts
 
 ### Building Layout
 - West Building: 4 floors (1 West - 4 West)
 - East Building: 3 floors (1 East - 3 East)
-- Connected bridges at specific floors
+- Connected bridges between buildings
 - Adjacent garden area
 
 ### Current Features
-- 3D visualization of hospital buildings
-- Interactive floor selection with hover and click states
-- Dynamic metric filtering by categories:
-  - Patient Metrics
-  - Staff Metrics
-- Real-time metrics data display
-- Heat map visualization for selected metrics
-- Metrics currently tracked:
-  - Patient satisfaction
-  - Staff retention
-  - Fall risk
-- Customizable metric display:
-  - Category filtering
-  - Multi-select metric display
-  - Individual metric heat map visualization
-- Controls panel for metric selection and filtering
-- Detailed metrics panel for hover interactions
+1. Main Hospital View:
+   - 3D visualization of hospital buildings
+   - Interactive floor selection with hover states
+   - Heat map visualization for selected metrics
+   - Free camera control for building exploration
+   - Collapsible controls panel
+   - Hover-activated metrics display
+
+2. Floor Detail View:
+   - Exploded view showing detailed room layout
+   - Patient rooms arranged in two rows
+   - Therapy rooms and offices with distinct layouts
+   - Initial top-down perspective with free camera control
+   - Persistent metrics panel with "Back to Overview" option
+   - Heat map visualization at room level
+   - Smooth transitions between views
+
+3. Metrics System:
+   - Dynamic metric filtering by categories:
+     - Patient Metrics
+     - Staff Metrics
+   - Real-time metrics data display
+   - Metrics currently tracked:
+     - Patient satisfaction
+     - Staff retention
+     - Fall risk
+   - Category-based metric grouping
+   - Multi-select metric display
+
+4. UI/UX Features:
+   - Collapsible control panel
+   - Context-sensitive metrics display
+   - Smooth transitions between views
+   - Persistent metrics in detail view
+   - Responsive hover states
+   - Clean, uncluttered interface
 
 ## Project Structure
 ```
@@ -51,7 +71,8 @@ hospital-3d-metrics/
 │   │   │   ├── Garden.tsx
 │   │   │   ├── HospitalView.tsx
 │   │   │   ├── Controls.tsx
-│   │   │   └── MetricsPanel.tsx
+│   │   │   ├── MetricsPanel.tsx
+│   │   │   └── FloorDetail.tsx
 │   │   ├── utils/
 │   │   │   └── colorScales.ts
 │   │   ├── hooks/
@@ -162,16 +183,31 @@ Filters metrics based on provided criteria
 
 ## Future Development
 Planned features and improvements:
-- [ ] Implement exploded floor view with patient room details
-- [ ] Add date range filtering
+- [ ] Implement date range filtering
 - [ ] Add metric comparison features
-- [ ] Add animation transitions for metric changes
 - [ ] Add 2D floor plan view option
 - [ ] Enhance heat map visualization with legend
 - [ ] Add more metrics and data points
 - [ ] Implement real-time data updates
 - [ ] Add user authentication
 - [ ] Enhance mobile responsiveness
+- [ ] Add animated transitions between views
+- [ ] Add more room types and configurations
+- [ ] Implement room detail panel
+- [ ] Add historical data tracking
+- [ ] Implement comparison mode between floors
+- [ ] Add data export functionality
+
+## Known Issues
+- None at present
+
+## Recent Updates
+- Added exploded floor view with detailed room layout
+- Implemented collapsible control panel
+- Added persistent metrics panel in floor detail view
+- Fixed camera control issues
+- Improved UI responsiveness
+- Added smooth transitions between views
 
 ## Note
 All information displayed is demo data and not representative of real patient information.
