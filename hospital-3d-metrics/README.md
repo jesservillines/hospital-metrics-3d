@@ -183,6 +183,8 @@ Filters metrics based on provided criteria
 
 ## Future Development
 Planned features and improvements:
+- [ ] Improve floor layout, look, and functionality
+- [ ] Create unique floor layout for each floor
 - [ ] Implement date range filtering
 - [ ] Add metric comparison features
 - [ ] Add 2D floor plan view option
