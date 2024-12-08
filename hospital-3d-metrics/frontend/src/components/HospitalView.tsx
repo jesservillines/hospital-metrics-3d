@@ -7,13 +7,15 @@ import { Garden } from './Garden';
 import { Controls } from './Controls';
 import { MetricsPanel } from './MetricsPanel';
 import { FloorDetail } from './FloorDetail';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useMetrics } from '../hooks/useMetrics';
 
-// Define building dimensions and positions
 const FLOOR_HEIGHT = 3;
 const BUILDING_SPACING = 30;
+const EXPLOSION_HEIGHT = FLOOR_HEIGHT * 5;
+const CRAIG_BLUE = '#007dc3';
+
 const buildingConfigs = {
   West: {
     floors: 4,
@@ -29,57 +31,64 @@ const buildingConfigs = {
   }
 };
 
-// Craig Hospital blue color
-const CRAIG_BLUE = '#007dc3';
-
 export const HospitalView = () => {
-  // State management
   const [hoveredFloor, setHoveredFloor] = useState<string | null>(null);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('patient_satisfaction');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['Patient Metrics', 'Staff Metrics']);
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['patient_satisfaction', 'fall_risk', 'staff_retention']);
   const [showFloorDetail, setShowFloorDetail] = useState(false);
+  const controlsRef = useRef<any>(null);
+  const [initialPosition] = useState(() => new THREE.Vector3(75, 45, 0));
 
-  // Fetch metrics using the custom hook
   const { metrics, loading, error, fetchMetrics } = useMetrics();
 
   useEffect(() => {
     fetchMetrics();
   }, []);
 
-  // Handle metric selection change
-  const handleMetricChange = (metric: string) => {
-    setSelectedMetric(metric);
-  };
+  useEffect(() => {
+    if (showFloorDetail && controlsRef.current) {
+      // Store current camera position before changing to top-down view
+      const currentPosition = controlsRef.current.object.position.clone();
 
-  // Handle category selection change
-  const handleCategoryChange = (categories: string[]) => {
-    setSelectedCategories(categories);
-  };
+      // Only set initial top-down view if it's the first time showing floor detail
+      if (!selectedFloor) {
+        controlsRef.current.object.position.set(0, EXPLOSION_HEIGHT + 40, 0);
+        controlsRef.current.setAzimuthalAngle(0);
+        controlsRef.current.setPolarAngle(0);
+      } else {
+        // Restore previous camera position
+        controlsRef.current.object.position.copy(currentPosition);
+      }
+    }
+  }, [showFloorDetail]);
 
-  // Handle metrics selection change
-  const handleMetricsSelectionChange = (metrics: string[]) => {
-    setSelectedMetrics(metrics);
-  };
+  const handleFloorClick = (floor: string | null) => {
+    // If we're already in floor detail mode, ignore clicks on the hospital
+    if (showFloorDetail && floor === selectedFloor) {
+      return;
+    }
 
-  // Handle floor click for floor detail view
-  const handleFloorClick = (floor: string) => {
+    // Normal floor selection handling
     if (selectedFloor === floor) {
       setSelectedFloor(null);
       setShowFloorDetail(false);
     } else {
       setSelectedFloor(floor);
-      setShowFloorDetail(true);
+      setShowFloorDetail(!!floor);
     }
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="w-screen h-screen">
       <Controls
-        onMetricChange={handleMetricChange}
-        onCategoryChange={handleCategoryChange}
-        onMetricsSelectionChange={handleMetricsSelectionChange}
+        onMetricChange={setSelectedMetric}
+        onCategoryChange={setSelectedCategories}
+        onMetricsSelectionChange={setSelectedMetrics}
         selectedMetric={selectedMetric}
         selectedCategories={selectedCategories}
         selectedMetrics={selectedMetrics}
@@ -91,11 +100,22 @@ export const HospitalView = () => {
         metrics={metrics || []}
         selectedCategories={selectedCategories}
         selectedMetrics={selectedMetrics}
+        showFloorDetail={showFloorDetail}
+        onClose={() => {
+          setSelectedFloor(null);
+          setShowFloorDetail(false);
+        }}
       />
 
       <Canvas shadows>
-        <PerspectiveCamera makeDefault position={[75, 45, 0]} />
+        <PerspectiveCamera
+          makeDefault
+          position={initialPosition}
+          fov={60}
+        />
+
         <OrbitControls
+          ref={controlsRef}
           enableDamping
           dampingFactor={0.05}
           minDistance={30}
@@ -103,17 +123,13 @@ export const HospitalView = () => {
           maxPolarAngle={Math.PI / 2}
         />
 
-        {/* Lighting */}
         <ambientLight intensity={0.5} />
         <directionalLight
           position={[20, 20, 0]}
           intensity={1}
           castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
         />
 
-        {/* Ground */}
         <mesh
           rotation-x={-Math.PI / 2}
           receiveShadow
@@ -123,65 +139,62 @@ export const HospitalView = () => {
           <meshStandardMaterial color="#a0a0a0" />
         </mesh>
 
-{/* Buildings */}
-        {!showFloorDetail && Object.entries(buildingConfigs).map(([name, config]) => (
-          <Building
-            key={name}
-            name={name}
-            position={config.position}
-            width={config.width}
-            height={FLOOR_HEIGHT * config.floors}
-            depth={config.depth}
-            floorCount={config.floors}
-            floorHeight={FLOOR_HEIGHT}
-            onHoverFloor={setHoveredFloor}
-            onSelectFloor={handleFloorClick}
-            hoveredFloor={hoveredFloor}
-            selectedFloor={selectedFloor}
-            selectedColor={CRAIG_BLUE}
-            metrics={metrics || []}
-            selectedMetric={selectedMetric}
-            rotation={[0, Math.PI / 2, 0]}
-          />
-        ))}
-
-        {showFloorDetail && selectedFloor && (
-          <FloorDetail
-            floorData={getFloorData(selectedFloor)}
-            onClose={() => {
-              setSelectedFloor(null);
-              setShowFloorDetail(false);
-            }}
-          />
-        )}
-
-        {/* Bridges */}
-        {!showFloorDetail && (
-          <>
-            <Bridge
-              position={[-10, FLOOR_HEIGHT * 1.5, 1]}
-              length={4}
-              width={BUILDING_SPACING/1.75}
-              height={FLOOR_HEIGHT-5.5}
-              rotation={[0, 0, 0]}
+        <group scale={showFloorDetail ? 0.3 : 1}>
+          {Object.entries(buildingConfigs).map(([name, config]) => (
+            <Building
+              key={name}
+              name={name}
+              position={config.position}
+              width={config.width}
+              height={FLOOR_HEIGHT * config.floors}
+              depth={config.depth}
+              floorCount={config.floors}
+              floorHeight={FLOOR_HEIGHT}
+              onHoverFloor={setHoveredFloor}
+              onSelectFloor={handleFloorClick}
+              hoveredFloor={hoveredFloor}
+              selectedFloor={selectedFloor}
+              selectedColor={CRAIG_BLUE}
+              metrics={metrics || []}
+              selectedMetric={selectedMetric}
+              rotation={[0, Math.PI / 2, 0]}
             />
-            <Bridge
-              position={[-10, FLOOR_HEIGHT * 2.5, 1]}
-              length={4}
-              width={BUILDING_SPACING/1.75}
-              height={FLOOR_HEIGHT-5.5}
-              rotation={[0, 0, 0]}
-            />
-          </>
-        )}
+          ))}
 
-        {/* Garden */}
-        {!showFloorDetail && (
+          <Bridge
+            position={[-10, FLOOR_HEIGHT * 1.5, 1]}
+            length={4}
+            width={BUILDING_SPACING/1.75}
+            height={FLOOR_HEIGHT-5.5}
+            rotation={[0, 0, 0]}
+          />
+          <Bridge
+            position={[-10, FLOOR_HEIGHT * 2.5, 1]}
+            length={4}
+            width={BUILDING_SPACING/1.75}
+            height={FLOOR_HEIGHT-5.5}
+            rotation={[0, 0, 0]}
+          />
+
           <Garden
             position={[15, 0, BUILDING_SPACING/2]}
             width={8}
             depth={12}
           />
+        </group>
+
+        {showFloorDetail && selectedFloor && (
+          <group position={[0, EXPLOSION_HEIGHT, 0]}>
+            <FloorDetail
+              floorName={selectedFloor}
+              onClose={() => {
+                setSelectedFloor(null);
+                setShowFloorDetail(false);
+              }}
+              metrics={metrics || []}
+              selectedMetric={selectedMetric}
+            />
+          </group>
         )}
       </Canvas>
     </div>

@@ -1,6 +1,8 @@
 // frontend/src/components/MetricsPanel.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface MetricsPanelProps {
   hoveredFloor: string | null;
@@ -13,6 +15,8 @@ interface MetricsPanelProps {
   }[];
   selectedCategories: string[];
   selectedMetrics: string[];
+  showFloorDetail?: boolean;
+  onClose?: () => void;
 }
 
 export const MetricsPanel: React.FC<MetricsPanelProps> = ({
@@ -21,12 +25,17 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
   metrics,
   selectedCategories,
   selectedMetrics,
+  showFloorDetail = false,
+  onClose
 }) => {
-  if (!hoveredFloor) {
+  const [isHovered, setIsHovered] = useState(false);
+  const displayFloor = selectedFloor || hoveredFloor;
+
+  if (!displayFloor) {
     return null;
   }
 
-  const floorMetrics = metrics.filter(m => m.floor === hoveredFloor);
+  const floorMetrics = metrics.filter(m => m.floor === displayFloor);
 
   const metricGroups = {
     'Patient Metrics': ['patient_satisfaction', 'fall_risk'],
@@ -41,10 +50,27 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
     }), {} as Record<string, string[]>);
 
   return (
-    <div className="absolute right-4 top-4 w-80 z-10">
+    <div
+      className={cn(
+        "absolute right-4 top-4 w-80 z-10",
+        showFloorDetail ? "opacity-100" : isHovered ? "opacity-100" : "opacity-0",
+        "transition-opacity duration-300"
+      )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Card className="relative bg-opacity-75 bg-white border border-white/20 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle>Floor {hoveredFloor} Metrics</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Floor {displayFloor} Metrics</CardTitle>
+          {showFloorDetail && onClose && (
+            <Button
+              variant="ghost"
+              onClick={onClose}
+              className="text-sm font-medium"
+            >
+              Back to Overview
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <div className="space-y-6">

@@ -4,28 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1286172f-6e2e-4839-9203-cb99406f1db0" name="Changes" comment="">
+    <list default="true" id="1286172f-6e2e-4839-9203-cb99406f1db0" name="Changes" comment="savings changes to panels">
       <change afterPath="$PROJECT_DIR$/.idea/claude_hospital_metrics_3d.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/Project Guidelines.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/routes.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Bridge.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Building.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Controls.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Garden.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/hooks/useMetrics.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/utils/colorScales.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Controls.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Controls.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorDetail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorDetail.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,12 +31,24 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "jesservillines"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/jesservillines/hospital-metrics-3d.git&quot;,
+    &quot;accountId&quot;: &quot;7ab0173d-9880-4fa3-a35c-800e989a8d88&quot;
+  }
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" root0="SKIP_INSPECTION" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2ptmxZRYWhY8syIehZpHG30TXB4" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -64,7 +63,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/jessevillines/Documents/1.0_projects/claude_hospital_metrics_3d/hospital-3d-metrics/frontend/src/components/HospitalView - Copy.tsx",
+    "last_opened_file_path": "C:/Users/jessevillines/Documents/1.0_projects/claude_hospital_metrics_3d",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -77,6 +76,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\jessevillines\Documents\1.0_projects\claude_hospital_metrics_3d" />
       <recent name="C:\Users\jessevillines\Documents\1.0_projects\claude_hospital_metrics_3d\hospital-3d-metrics" />
     </key>
   </component>
@@ -96,11 +96,68 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1733593993052</updated>
-      <workItem from="1733593994121" duration="16552000" />
+      <workItem from="1733593994121" duration="34000000" />
     </task>
+    <task id="LOCAL-00001" summary="commiting app as is after day 1 dev">
+      <option name="closed" value="true" />
+      <created>1733611290419</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1733611290419</updated>
+    </task>
+    <task id="LOCAL-00002" summary="adding app demo picture">
+      <option name="closed" value="true" />
+      <created>1733611592827</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1733611592827</updated>
+    </task>
+    <task id="LOCAL-00003" summary="adding image to README.md">
+      <option name="closed" value="true" />
+      <created>1733611800636</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1733611800636</updated>
+    </task>
+    <task id="LOCAL-00004" summary="adding author details to README">
+      <option name="closed" value="true" />
+      <created>1733611952290</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1733611952290</updated>
+    </task>
+    <task id="LOCAL-00005" summary="adding author details to README">
+      <option name="closed" value="true" />
+      <created>1733612300405</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1733612300405</updated>
+    </task>
+    <task id="LOCAL-00006" summary="savings changes to panels">
+      <option name="closed" value="true" />
+      <created>1733620237323</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1733620237323</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="commiting app as is after day 1 dev" />
+    <MESSAGE value="adding app demo picture" />
+    <MESSAGE value="adding image to README.md" />
+    <MESSAGE value="adding author details to README" />
+    <MESSAGE value="savings changes to panels" />
+    <option name="LAST_COMMIT_MESSAGE" value="savings changes to panels" />
   </component>
 </project>

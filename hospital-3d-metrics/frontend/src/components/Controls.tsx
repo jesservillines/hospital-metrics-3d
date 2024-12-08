@@ -1,5 +1,5 @@
 // frontend/src/components/Controls.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -43,6 +43,7 @@ export const Controls: React.FC<ControlsProps> = ({
   selectedMetrics,
 }) => {
   const [open, setOpen] = React.useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const metrics = [
     { value: 'patient_satisfaction', label: 'Patient Satisfaction', category: 'Patient Metrics' },
@@ -55,7 +56,6 @@ export const Controls: React.FC<ControlsProps> = ({
     { id: 'staff-metrics', label: 'Staff Metrics' },
   ];
 
-  // Filter metrics based on selected categories
   const availableMetrics = metrics.filter(metric =>
     selectedCategories.includes(metric.category)
   );
@@ -64,7 +64,6 @@ export const Controls: React.FC<ControlsProps> = ({
     selectedMetrics.includes(metric.value)
   );
 
-  // Handle select/deselect all metrics
   const handleSelectAllToggle = () => {
     if (allMetricsSelected) {
       onMetricsSelectionChange([]);
@@ -76,12 +75,21 @@ export const Controls: React.FC<ControlsProps> = ({
   };
 
   return (
-    <div className="absolute left-4 top-4 w-80 z-10">
+    <div
+      className="absolute left-4 top-4 w-80 z-10"
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+    >
       <Card className="relative bg-opacity-75 bg-white border border-white/20 backdrop-blur-sm">
-        <CardHeader>
+        <CardHeader className="cursor-pointer">
           <CardTitle>Visualization Controls</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent
+          className={cn(
+            "space-y-6 overflow-hidden transition-all duration-300",
+            isExpanded ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"
+          )}
+        >
           <div className="space-y-2">
             <label className="text-sm font-medium">Metric Categories</label>
             <div className="grid gap-4">
