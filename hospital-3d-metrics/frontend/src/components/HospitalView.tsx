@@ -1,4 +1,3 @@
-// frontend/src/components/HospitalView.tsx
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { Building } from './Building';
@@ -7,14 +6,30 @@ import { Garden } from './Garden';
 import { Controls } from './Controls';
 import { MetricsPanel } from './MetricsPanel';
 import { FloorDetail } from './FloorDetail';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import * as THREE from 'three';
 import { useMetrics } from '../hooks/useMetrics';
+import { roomDataService } from '../services/roomDataService';
 
 const FLOOR_HEIGHT = 3;
 const BUILDING_SPACING = 30;
 const EXPLOSION_HEIGHT = FLOOR_HEIGHT * 5;
 const CRAIG_BLUE = '#007dc3';
+
+// Floor-level metrics for overview mode
+const FLOOR_LEVEL_METRICS = {
+  metrics: [
+    { value: 'patient_satisfaction', label: 'Patient Satisfaction', category: 'Patient Metrics' },
+    { value: 'staff_retention', label: 'Staff Retention', category: 'Staff Metrics' },
+    { value: 'fall_risk_average', label: 'Fall Risk Average', category: 'Patient Metrics' },
+    { value: 'nurse_response_time_avg', label: 'Nurse Response Time', category: 'Staff Metrics' },
+    { value: 'therapy_completion_rate', label: 'Therapy Completion', category: 'Patient Metrics' },
+    { value: 'equipment_utilization', label: 'Equipment Utilization', category: 'Room Metrics' },
+    { value: 'department_efficiency', label: 'Department Efficiency', category: 'Staff Metrics' },
+    { value: 'space_utilization', label: 'Space Utilization', category: 'Room Metrics' }
+  ],
+  categories: ['Patient Metrics', 'Staff Metrics', 'Room Metrics']
+};
 
 const buildingConfigs = {
   West: {
@@ -35,50 +50,123 @@ export const HospitalView = () => {
   const [hoveredFloor, setHoveredFloor] = useState<string | null>(null);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('patient_satisfaction');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Patient Metrics', 'Staff Metrics']);
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['patient_satisfaction', 'fall_risk', 'staff_retention']);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    FLOOR_LEVEL_METRICS.categories.slice(0, 2)
+  );
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(
+    FLOOR_LEVEL_METRICS.metrics
+      .filter(m => ['Patient Metrics', 'Staff Metrics'].includes(m.category))
+      .map(m => m.value)
+  );
   const [showFloorDetail, setShowFloorDetail] = useState(false);
+  const [roomsData, setRoomsData] = useState<any>(null);
   const controlsRef = useRef<any>(null);
   const [initialPosition] = useState(() => new THREE.Vector3(75, 45, 0));
 
-  const { metrics, loading, error, fetchMetrics } = useMetrics();
+  const {
+    metrics,
+    loading,
+    error,
+    fetchFloorMetrics,
+    fetchHeatmapData,
+    currentMetrics
+  } = useMetrics();
 
+  // Initialize data for all floors
   useEffect(() => {
-    fetchMetrics();
-  }, []);
+    const loadInitialData = async () => {
+      try {
+        console.log('Starting data initialization...');
+        const floors = [
+          '1 East', '2 East', '3 East',
+          '1 West', '2 West', '3 West', '4 West'
+        ];
 
+        // First, fetch metrics for all floors
+        await Promise.all(floors.map(floor => fetchFloorMetrics(floor)));
+
+        // Then fetch heatmap data if we have a selected metric
+        if (selectedMetric) {
+          await Promise.all(floors.map(floor =>
+            fetchHeatmapData(floor, selectedMetric)
+          ));
+        }
+
+        setRoomsData(roomDataService);
+        console.log('Initial data loaded successfully');
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      }
+    };
+
+    loadInitialData();
+  }, []); // Run only on mount
+
+  // Handle metric changes
+  useEffect(() => {
+    const updateMetrics = async () => {
+      if (selectedMetric) {
+        const floors = [
+          '1 East', '2 East', '3 East',
+          '1 West', '2 West', '3 West', '4 West'
+        ];
+        await Promise.all(floors.map(floor =>
+          fetchHeatmapData(floor, selectedMetric)
+        ));
+      }
+    };
+
+    updateMetrics();
+  }, [selectedMetric, fetchHeatmapData]);
+
+  // Camera position handling for floor detail view
   useEffect(() => {
     if (showFloorDetail && controlsRef.current) {
-      // Store current camera position before changing to top-down view
-      const currentPosition = controlsRef.current.object.position.clone();
-
-      // Only set initial top-down view if it's the first time showing floor detail
       if (!selectedFloor) {
         controlsRef.current.object.position.set(0, EXPLOSION_HEIGHT + 40, 0);
         controlsRef.current.setAzimuthalAngle(0);
         controlsRef.current.setPolarAngle(0);
-      } else {
-        // Restore previous camera position
-        controlsRef.current.object.position.copy(currentPosition);
       }
     }
-  }, [showFloorDetail]);
+  }, [showFloorDetail, selectedFloor]);
 
-  const handleFloorClick = (floor: string | null) => {
-    // If we're already in floor detail mode, ignore clicks on the hospital
+  const handleFloorClick = useCallback(async (floor: string | null) => {
+    console.log('Floor clicked:', floor);
+
     if (showFloorDetail && floor === selectedFloor) {
       return;
     }
 
-    // Normal floor selection handling
     if (selectedFloor === floor) {
       setSelectedFloor(null);
       setShowFloorDetail(false);
     } else {
       setSelectedFloor(floor);
       setShowFloorDetail(!!floor);
+      if (floor) {
+        await fetchFloorMetrics(floor);
+        if (selectedMetric) {
+          await fetchHeatmapData(floor, selectedMetric);
+        }
+      }
     }
-  };
+  }, [showFloorDetail, selectedFloor, selectedMetric, fetchFloorMetrics, fetchHeatmapData]);
+
+  const handleMetricChange = useCallback(async (metric: string) => {
+    console.log('Metric changed to:', metric);
+    setSelectedMetric(metric);
+    if (selectedFloor) {
+      await fetchHeatmapData(selectedFloor, metric);
+    }
+  }, [selectedFloor, fetchHeatmapData]);
+
+  // Filter metrics for current view mode
+  const getFilteredMetrics = useCallback((metrics: any[]) => {
+    return metrics.filter(metric =>
+      metric.metric_type === 'floor' &&
+      selectedMetrics.includes(metric.metric_name)
+    );
+  }, [selectedMetrics]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -86,18 +174,20 @@ export const HospitalView = () => {
   return (
     <div className="w-screen h-screen">
       <Controls
-        onMetricChange={setSelectedMetric}
+        onMetricChange={handleMetricChange}
         onCategoryChange={setSelectedCategories}
         onMetricsSelectionChange={setSelectedMetrics}
         selectedMetric={selectedMetric}
         selectedCategories={selectedCategories}
         selectedMetrics={selectedMetrics}
+        showFloorDetail={showFloorDetail}
+        availableMetrics={FLOOR_LEVEL_METRICS}
       />
 
       <MetricsPanel
         hoveredFloor={hoveredFloor}
         selectedFloor={selectedFloor}
-        metrics={metrics || []}
+        metrics={getFilteredMetrics(currentMetrics)}
         selectedCategories={selectedCategories}
         selectedMetrics={selectedMetrics}
         showFloorDetail={showFloorDetail}
@@ -125,17 +215,24 @@ export const HospitalView = () => {
 
         <ambientLight intensity={0.5} />
         <directionalLight
-          position={[20, 20, 0]}
-          intensity={1}
+          position={[50, 50, 25]}
+          intensity={0.8}
           castShadow
+          shadow-mapSize-width={2048}
+          shadow-mapSize-height={2048}
+          shadow-camera-far={100}
+          shadow-camera-left={-50}
+          shadow-camera-right={50}
+          shadow-camera-top={50}
+          shadow-camera-bottom={-50}
         />
 
         <mesh
           rotation-x={-Math.PI / 2}
-          receiveShadow
           position={[0, -0.1, 0]}
+          receiveShadow
         >
-          <planeGeometry args={[100, 100]} />
+          <planeGeometry args={[1000, 1000]} />
           <meshStandardMaterial color="#a0a0a0" />
         </mesh>
 
@@ -155,7 +252,7 @@ export const HospitalView = () => {
               hoveredFloor={hoveredFloor}
               selectedFloor={selectedFloor}
               selectedColor={CRAIG_BLUE}
-              metrics={metrics || []}
+              metrics={currentMetrics}
               selectedMetric={selectedMetric}
               rotation={[0, Math.PI / 2, 0]}
             />
@@ -183,7 +280,7 @@ export const HospitalView = () => {
           />
         </group>
 
-        {showFloorDetail && selectedFloor && (
+        {showFloorDetail && selectedFloor && roomsData && (
           <group position={[0, EXPLOSION_HEIGHT, 0]}>
             <FloorDetail
               floorName={selectedFloor}
@@ -191,8 +288,9 @@ export const HospitalView = () => {
                 setSelectedFloor(null);
                 setShowFloorDetail(false);
               }}
-              metrics={metrics || []}
+              metrics={currentMetrics}
               selectedMetric={selectedMetric}
+              roomsData={roomsData.getFloor(selectedFloor)}
             />
           </group>
         )}

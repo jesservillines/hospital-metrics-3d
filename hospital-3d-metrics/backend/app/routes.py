@@ -1,93 +1,130 @@
-# backend/app/routes.py
 from fastapi import APIRouter, HTTPException
 from typing import List, Optional
 import pandas as pd
+import numpy as np
 from .models import MetricData, FloorMetrics, MetricFilter
+from .services.metrics_service import metrics_service
+import logging
+import os
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# In-memory data store (replace with database in production)
-df = pd.read_csv("data/initial_metrics.csv")
-# Fill NaN values in room column with empty string
-df['room'] = df['room'].fillna('')
-# Ensure metric_type has a default value
-df['metric_type'] = df['metric_type'].fillna('floor')
 
-@router.get("/metrics", response_model=List[MetricData])
+def clean_float_value(value, to_int=False) -> float:
+    """Clean float values to ensure JSON compliance and optionally convert to integers."""
+    if pd.isna(value) or np.isnan(value):
+        return 0 if to_int else 0.0
+    if np.isinf(value):
+        return 0 if to_int else 0.0
+    try:
+        cleaned_value = float(value)
+        return int(cleaned_value) if to_int else cleaned_value
+    except (TypeError, ValueError):
+        return 0 if to_int else 0.0
+
+
+@router.get("/metrics")
 async def get_metrics(
         floor: Optional[str] = None,
-        metric_name: Optional[str] = None
+        metric_name: Optional[str] = None,
+        metric_type: Optional[str] = None
 ):
-    filtered_df = df.copy()
+    try:
+        logger.info(f"Getting metrics with filters - floor: {floor}, metric: {metric_name}, type: {metric_type}")
+        metrics = metrics_service.get_filtered_metrics(floor, metric_name, metric_type)
+        logger.info(f"Retrieved {len(metrics)} metrics")
 
-    if floor:
-        filtered_df = filtered_df[filtered_df['floor'] == floor]
-    if metric_name:
-        filtered_df = filtered_df[filtered_df['metric_name'] == metric_name]
+        # Clean float values
+        for metric in metrics:
+            if 'value' in metric:
+                metric['value'] = clean_float_value(metric['value'])
 
-    # Convert DataFrame to dict records and ensure all fields are properly formatted
-    results = []
-    for _, row in filtered_df.iterrows():
-        metric_data = {
-            'floor': row['floor'],
-            'room': row['room'] if pd.notna(row.get('room', '')) else '',
-            'metric_name': row['metric_name'],
-            'value': float(row['value']),
-            'timestamp': row['timestamp'],
-            'metric_type': row.get('metric_type', 'floor')
-        }
-        results.append(metric_data)
+        return metrics
+    except Exception as e:
+        logger.error(f"Error in get_metrics: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-    return results
 
-@router.get("/floors/{floor_id}/metrics", response_model=FloorMetrics)
+@router.get("/floors/{floor_id}/metrics")
 async def get_floor_metrics(floor_id: str):
-    floor_data = df[df['floor'] == floor_id]
-    if floor_data.empty:
-        raise HTTPException(status_code=404, detail="Floor not found")
+    try:
+        floor_name = floor_id.replace("%20", " ")
+        logger.info(f"Getting metrics for floor: {floor_name}")
 
-    # Get floor-level metrics
-    floor_metrics_data = floor_data[floor_data['metric_type'] == 'floor']
-    floor_metrics = dict(zip(floor_metrics_data['metric_name'], floor_metrics_data['value']))
+        # Get floor metrics
+        floor_metrics = metrics_service.get_floor_metrics(floor_name)
+        logger.info(f"Retrieved {len(floor_metrics)} floor metrics")
 
-    # Get room-level metrics
-    room_metrics_data = floor_data[floor_data['metric_type'] == 'room']
-    room_metrics = {}
-    for room in room_metrics_data['room'].unique():
-        if pd.notna(room) and room != '':
-            room_data = room_metrics_data[room_metrics_data['room'] == room]
-            room_metrics[room] = dict(zip(room_data['metric_name'], room_data['value']))
+        # Get room metrics
+        room_metrics = metrics_service.get_room_metrics_by_floor(floor_name)
+        logger.info(f"Retrieved {len(room_metrics)} room metrics")
 
-    return FloorMetrics(
-        floor=floor_id,
-        floor_metrics=floor_metrics,
-        room_metrics=room_metrics
-    )
+        # Format response
+        formatted_metrics = []
 
-@router.post("/metrics/filter", response_model=List[MetricData])
-async def filter_metrics(filter_params: MetricFilter):
-    filtered_df = df.copy()
+        # Add floor-level metrics
+        for metric in floor_metrics:
+            formatted_metric = {
+                "floor": floor_name,
+                "metric_name": metric["metric_name"],
+                "value": clean_float_value(metric["value"]),
+                "timestamp": metric["timestamp"],
+                "metric_type": "floor"
+            }
+            formatted_metrics.append(formatted_metric)
 
-    if filter_params.metric_name:
-        filtered_df = filtered_df[filtered_df['metric_name'] == filter_params.metric_name]
-    if filter_params.start_date:
-        filtered_df = filtered_df[filtered_df['timestamp'] >= filter_params.start_date]
-    if filter_params.end_date:
-        filtered_df = filtered_df[filtered_df['timestamp'] <= filter_params.end_date]
-    if filter_params.metric_type:
-        filtered_df = filtered_df[filtered_df['metric_type'] == filter_params.metric_type]
+        # Add room-level metrics
+        for metric in room_metrics:
+            formatted_metric = {
+                "floor": floor_name,
+                "room": metric["room_id"],
+                "metric_name": metric["metric_name"],
+                "value": clean_float_value(metric["value"]),
+                "timestamp": metric["timestamp"],
+                "metric_type": "room"
+            }
+            formatted_metrics.append(formatted_metric)
 
-    # Convert DataFrame to dict records with proper null handling
-    results = []
-    for _, row in filtered_df.iterrows():
-        metric_data = {
-            'floor': row['floor'],
-            'room': row['room'] if pd.notna(row.get('room', '')) else '',
-            'metric_name': row['metric_name'],
-            'value': float(row['value']),
-            'timestamp': row['timestamp'],
-            'metric_type': row.get('metric_type', 'floor')
-        }
-        results.append(metric_data)
+        logger.info(f"Returning {len(formatted_metrics)} total metrics for floor {floor_name}")
+        return formatted_metrics
 
-    return results
+    except Exception as e:
+        logger.error(f"Error getting floor metrics: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/heatmap/{floor_id}")
+async def get_heatmap_data(
+        floor_id: str,
+        metric_name: str
+):
+    try:
+        floor_name = floor_id.replace("%20", " ")
+        logger.info(f"Getting heatmap data for floor {floor_name} and metric {metric_name}")
+
+        metrics = metrics_service.get_heatmap_data(floor_name, metric_name)
+        logger.info(f"Retrieved {len(metrics)} metrics for heatmap")
+
+        # Format the response
+        formatted_metrics = []
+        for metric in metrics:
+            formatted_metric = {
+                "floor": floor_name,
+                "metric_name": metric["metric_name"],
+                "value": clean_float_value(metric["value"]),
+                "timestamp": metric["timestamp"],
+                "metric_type": "floor" if not metric.get("room_id") else "room"
+            }
+            if "room_id" in metric:
+                formatted_metric["room"] = metric["room_id"]
+            formatted_metrics.append(formatted_metric)
+
+        logger.info(f"Returning {len(formatted_metrics)} formatted metrics for heatmap")
+        return formatted_metrics
+    except Exception as e:
+        logger.error(f"Error getting heatmap data: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -1,0 +1,133 @@
+floor,room_id,room_type,room_name,width,depth,x_position,z_position,notes
+2 East,227A,patient,Patient Room 227A,4,6,-40,20,Standard Patient Room
+2 East,228A,patient,Patient Room 228A,4,6,-35,20,Standard Patient Room
+2 East,229A,patient,Patient Room 229A,4,6,-30,20,Standard Patient Room
+2 East,230A,patient,Patient Room 230A,4,6,-25,20,Standard Patient Room
+2 East,231A,patient,Patient Room 231A,4,6,-20,20,Standard Patient Room
+2 East,232A,patient,Patient Room 232A,4,6,-15,20,Standard Patient Room
+2 East,232B,patient,Patient Room 232B,4,6,-10,20,Standard Patient Room
+2 East,233A,patient,Patient Room 233A,4,6,-5,20,Standard Patient Room
+2 East,233B,patient,Patient Room 233B,4,6,0,20,Standard Patient Room
+2 East,234A,patient,Patient Room 234A,4,6,5,20,Standard Patient Room
+2 East,234B,patient,Patient Room 234B,4,6,10,20,Standard Patient Room
+2 East,235A,patient,Patient Room 235A,4,6,15,20,Standard Patient Room
+2 East,H2E-1,hallway,Main Corridor North,50,3,0,12,North hallway
+2 East,235B,patient,Patient Room 235B,4,6,-40,-20,Standard Patient Room
+2 East,236A,patient,Patient Room 236A,4,6,-35,-20,Standard Patient Room
+2 East,237A,patient,Patient Room 237A,4,6,-30,-20,Standard Patient Room
+2 East,238A,patient,Patient Room 238A,4,6,-25,-20,Standard Patient Room
+2 East,239A,patient,Patient Room 239A,4,6,-20,-20,Standard Patient Room
+2 East,240A,patient,Patient Room 240A,4,6,-15,-20,Standard Patient Room
+2 East,241A,patient,Patient Room 241A,4,6,-10,-20,Standard Patient Room
+2 East,242A,patient,Patient Room 242A,4,6,-5,-20,Standard Patient Room
+2 East,243A,patient,Patient Room 243A,4,6,0,-20,Standard Patient Room
+2 East,244A,patient,Patient Room 244A,4,6,5,-20,Standard Patient Room
+2 East,245A,patient,Patient Room 245A,4,6,10,-20,Standard Patient Room
+2 East,2XXX,patient,Patient Room 2XXX,4,6,15,-20,Standard Patient Room
+2 East,H2E-2,hallway,Main Corridor South,50,3,0,-12,South hallway
+2 East,T2E-1,therapy,Physical Therapy Gym,15,20,-30,0,Main therapy space
+2 East,T2E-2,therapy,Occupational Therapy,15,20,30,0,OT space
+2 East,N2E-1,nurse,Nurse Station Central,8,6,0,0,Central nurse station
+2 East,O2E-1,office,Staff Office Suite,10,8,15,0,Staff offices
+3 East,327A,patient,Patient Room 327A,4,6,-40,20,Standard Patient Room
+3 East,328A,patient,Patient Room 328A,4,6,-35,20,Standard Patient Room
+3 East,329A,patient,Patient Room 329A,4,6,-30,20,Standard Patient Room
+3 East,330A,patient,Patient Room 330A,4,6,-25,20,Standard Patient Room
+3 East,331A,patient,Patient Room 331A,4,6,-20,20,Standard Patient Room
+3 East,332A,patient,Patient Room 332A,4,6,-15,20,Standard Patient Room
+3 East,333A,patient,Patient Room 333A,4,6,-10,20,Standard Patient Room
+3 East,334A,patient,Patient Room 334A,4,6,-5,20,Standard Patient Room
+3 East,335A,patient,Patient Room 335A,4,6,0,20,Standard Patient Room
+3 East,336A,patient,Patient Room 336A,4,6,-40,-20,Standard Patient Room
+3 East,337A,patient,Patient Room 337A,4,6,-35,-20,Standard Patient Room
+3 East,338A,patient,Patient Room 338A,4,6,-30,-20,Standard Patient Room
+3 East,339A,patient,Patient Room 339A,4,6,-25,-20,Standard Patient Room
+3 East,340A,patient,Patient Room 340A,4,6,-20,-20,Standard Patient Room
+3 East,341A,patient,Patient Room 341A,4,6,-15,-20,Standard Patient Room
+3 East,342A,patient,Patient Room 342A,4,6,-10,-20,Standard Patient Room
+3 East,343A,patient,Patient Room 343A,4,6,-5,-20,Standard Patient Room
+3 East,H3E-1,hallway,Main Corridor North,50,3,0,12,North hallway
+3 East,H3E-2,hallway,Main Corridor South,50,3,0,-12,South hallway
+3 East,T3E-1,therapy,Physical Therapy Gym,15,20,-30,0,Main therapy space
+3 East,T3E-2,therapy,Occupational Therapy,15,20,30,0,OT space
+3 East,N3E-1,nurse,Nurse Station Central,8,6,0,0,Central nurse station
+3 East,O3E-1,office,Staff Office Suite,10,8,15,0,Staff offices
+3 West,301A,patient,Patient Room 301A,4,6,-40,20,Standard Patient Room
+3 West,302A,patient,Patient Room 302A,4,6,-35,20,Standard Patient Room
+3 West,303A,patient,Patient Room 303A,4,6,-30,20,Standard Patient Room
+3 West,304A,patient,Patient Room 304A,4,6,-25,20,Standard Patient Room
+3 West,305A,patient,Patient Room 305A,4,6,-20,20,Standard Patient Room
+3 West,306A,patient,Patient Room 306A,4,6,-15,20,Standard Patient Room
+3 West,307A,patient,Patient Room 307A,4,6,-10,20,Standard Patient Room
+3 West,308A,patient,Patient Room 308A,4,6,-5,20,Standard Patient Room
+3 West,309A,patient,Patient Room 309A,4,6,0,20,Standard Patient Room
+3 West,310A,patient,Patient Room 310A,4,6,5,20,Standard Patient Room
+3 West,311A,patient,Patient Room 311A,4,6,10,20,Standard Patient Room
+3 West,312A,patient,Patient Room 312A,4,6,15,20,Standard Patient Room
+3 West,313A,patient,Patient Room 313A,4,6,-40,-20,Standard Patient Room
+3 West,314A,patient,Patient Room 314A,4,6,-35,-20,Standard Patient Room
+3 West,315A,patient,Patient Room 315A,4,6,-30,-20,Standard Patient Room
+3 West,316A,patient,Patient Room 316A,4,6,-25,-20,Standard Patient Room
+3 West,317A,patient,Patient Room 317A,4,6,-20,-20,Standard Patient Room
+3 West,318A,patient,Patient Room 318A,4,6,-15,-20,Standard Patient Room
+3 West,319A,patient,Patient Room 319A,4,6,-10,-20,Standard Patient Room
+3 West,320A,patient,Patient Room 320A,4,6,-5,-20,Standard Patient Room
+3 West,321A,patient,Patient Room 321A,4,6,0,-20,Standard Patient Room
+3 West,322A,patient,Patient Room 322A,4,6,5,-20,Standard Patient Room
+3 West,323A,patient,Patient Room 323A,4,6,10,-20,Standard Patient Room
+3 West,324A,patient,Patient Room 324A,4,6,15,-20,Standard Patient Room
+3 West,325A,patient,Patient Room 325A,4,6,-40,20,Standard Patient Room
+3 West,326A,patient,Patient Room 326A,4,6,-35,20,Standard Patient Room
+3 West,H3W-1,hallway,Main Corridor North,50,3,0,12,North hallway
+3 West,H3W-2,hallway,Main Corridor South,50,3,0,-12,South hallway
+3 West,T3W-1,therapy,Physical Therapy,20,25,-30,0,Main therapy space
+3 West,T3W-2,therapy,Occupational Therapy,20,25,30,0,OT space
+3 West,N3W-1,nurse,Nurse Station Central,8,6,0,0,Central nurse station
+3 West,O3W-1,office,Staff Office Suite,10,8,15,0,Staff offices
+4 West,401A,patient,Patient Room 401A,4,6,-40,20,Standard Patient Room
+4 West,402A,patient,Patient Room 402A,4,6,-35,20,Standard Patient Room
+4 West,403A,patient,Patient Room 403A,4,6,-30,20,Standard Patient Room
+4 West,404A,patient,Patient Room 404A,4,6,-25,20,Standard Patient Room
+4 West,405A,patient,Patient Room 405A,4,6,-20,20,Standard Patient Room
+4 West,406A,patient,Patient Room 406A,4,6,-15,20,Standard Patient Room
+4 West,407A,patient,Patient Room 407A,4,6,-10,20,Standard Patient Room
+4 West,408A,patient,Patient Room 408A,4,6,-5,20,Standard Patient Room
+4 West,409A,patient,Patient Room 409A,4,6,0,20,Standard Patient Room
+4 West,410A,patient,Patient Room 410A,4,6,5,20,Standard Patient Room
+4 West,411A,patient,Patient Room 411A,4,6,10,20,Standard Patient Room
+4 West,412A,patient,Patient Room 412A,4,6,15,20,Standard Patient Room
+4 West,413A,patient,Patient Room 413A,4,6,-40,-20,Standard Patient Room
+4 West,414A,patient,Patient Room 414A,4,6,-35,-20,Standard Patient Room
+4 West,415A,patient,Patient Room 415A,4,6,-30,-20,Standard Patient Room
+4 West,416A,patient,Patient Room 416A,4,6,-25,-20,Standard Patient Room
+4 West,417A,patient,Patient Room 417A,4,6,-20,-20,Standard Patient Room
+4 West,418A,patient,Patient Room 418A,4,6,-15,-20,Standard Patient Room
+4 West,419A,patient,Patient Room 419A,4,6,-10,-20,Standard Patient Room
+4 West,420A,patient,Patient Room 420A,4,6,-5,-20,Standard Patient Room
+4 West,421A,patient,Patient Room 421A,4,6,0,-20,Standard Patient Room
+4 West,422A,patient,Patient Room 422A,4,6,5,-20,Standard Patient Room
+4 West,423A,patient,Patient Room 423A,4,6,10,-20,Standard Patient Room
+4 West,424A,patient,Patient Room 424A,4,6,15,-20,Standard Patient Room
+4 West,425A,patient,Patient Room 425A,4,6,-40,20,Standard Patient Room
+4 West,426A,patient,Patient Room 426A,4,6,-35,20,Standard Patient Room
+4 West,H4W-1,hallway,Main Corridor North,50,3,0,12,North hallway
+4 West,H4W-2,hallway,Main Corridor South,50,3,0,-12,South hallway
+4 West,T4W-1,therapy,Physical Therapy,20,25,-30,0,Main therapy space
+4 West,T4W-2,therapy,Occupational Therapy,20,25,30,0,OT space
+4 West,N4W-1,nurse,Nurse Station Central,8,6,0,0,Central nurse station
+4 West,O4W-1,office,Staff Office Suite,10,8,15,0,Staff offices
+1 East,A1E-1,office,Administration Office,12,10,-30,0,Main administrative area
+1 East,Q1E-1,office,Quality Office,8,8,-15,0,Quality department
+1 East,T1E-1,office,Therapeutic Recreation,10,8,0,0,Therapy planning and staff area
+1 East,O1E-1,office,Staff Office Suite,10,8,15,0,General staff offices
+1 East,H1E-1,hallway,Main Corridor,50,3,0,12,Primary hallway
+1 West,G1W-1,therapy,Main Gymnasium,25,30,-30,0,Large rehabilitation gym
+1 West,G1W-2,therapy,PEAK Center,20,25,0,0,Specialized fitness center
+1 West,A1W-1,office,Admissions Office,12,10,20,-10,Patient intake and processing
+1 West,O1W-1,office,Staff Offices,15,10,20,10,Staff workspace
+1 West,H1W-1,hallway,Main Corridor,50,3,0,12,Primary hallway
+2 West,B2W-1,office,Boardroom,15,12,-30,0,Executive meeting space
+2 West,T2W-1,therapy,Physical Therapy Gym,20,25,0,10,Primary PT space
+2 West,T2W-2,therapy,Occupational Therapy Gym,20,25,0,-10,Primary OT space
+2 West,O2W-1,office,Staff Office Suite,12,10,25,0,Staff workspace
+2 West,H2W-1,hallway,Main Corridor,50,3,0,12,Primary hallway

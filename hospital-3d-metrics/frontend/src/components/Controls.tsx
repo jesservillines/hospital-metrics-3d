@@ -1,4 +1,3 @@
-// frontend/src/components/Controls.tsx
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,6 +24,17 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+interface MetricDefinition {
+  value: string;
+  label: string;
+  category: string;
+}
+
+interface MetricConfig {
+  metrics: MetricDefinition[];
+  categories: string[];
+}
+
 interface ControlsProps {
   onMetricChange: (metric: string) => void;
   onCategoryChange: (categories: string[]) => void;
@@ -32,6 +42,8 @@ interface ControlsProps {
   selectedMetric: string;
   selectedCategories: string[];
   selectedMetrics: string[];
+  showFloorDetail: boolean;
+  availableMetrics: MetricConfig;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
@@ -41,26 +53,18 @@ export const Controls: React.FC<ControlsProps> = ({
   selectedMetric,
   selectedCategories,
   selectedMetrics,
+  showFloorDetail,
+  availableMetrics
 }) => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const metrics = [
-    { value: 'patient_satisfaction', label: 'Patient Satisfaction', category: 'Patient Metrics' },
-    { value: 'fall_risk', label: 'Fall Risk', category: 'Patient Metrics' },
-    { value: 'staff_retention', label: 'Staff Retention', category: 'Staff Metrics' }
-  ];
-
-  const categories = [
-    { id: 'patient-metrics', label: 'Patient Metrics' },
-    { id: 'staff-metrics', label: 'Staff Metrics' },
-  ];
-
-  const availableMetrics = metrics.filter(metric =>
+  // Filter available metrics based on selected categories
+  const filteredMetrics = availableMetrics.metrics.filter(metric =>
     selectedCategories.includes(metric.category)
   );
 
-  const allMetricsSelected = availableMetrics.every(metric =>
+  const allMetricsSelected = filteredMetrics.every(metric =>
     selectedMetrics.includes(metric.value)
   );
 
@@ -68,11 +72,16 @@ export const Controls: React.FC<ControlsProps> = ({
     if (allMetricsSelected) {
       onMetricsSelectionChange([]);
     } else {
-      const allMetricsInCategories = availableMetrics.map(m => m.value);
+      const allMetricsInCategories = filteredMetrics.map(m => m.value);
       onMetricsSelectionChange(allMetricsInCategories);
     }
     setOpen(false);
   };
+
+  const categories = availableMetrics.categories.map(category => ({
+    id: category.toLowerCase().replace(/\s+/g, '-'),
+    label: category
+  }));
 
   return (
     <div
@@ -128,7 +137,7 @@ export const Controls: React.FC<ControlsProps> = ({
                 <SelectValue placeholder="Select metric to display" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {availableMetrics.map((metric) => (
+                {filteredMetrics.map((metric) => (
                   <SelectItem key={metric.value} value={metric.value}>
                     {metric.label}
                   </SelectItem>
@@ -164,7 +173,7 @@ export const Controls: React.FC<ControlsProps> = ({
                     >
                       {allMetricsSelected ? "Deselect All" : "Select All Available"}
                     </CommandItem>
-                    {availableMetrics.map((metric) => (
+                    {filteredMetrics.map((metric) => (
                       <CommandItem
                         key={metric.value}
                         onSelect={() => {

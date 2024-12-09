@@ -1,7 +1,6 @@
-// frontend/src/components/Building.tsx
-import { useEffect, useMemo } from 'react'
-import * as THREE from 'three'
-import { Vector3, Euler } from 'three'
+import { useMemo } from 'react';
+import * as THREE from 'three';
+import { Vector3, Euler } from 'three';
 import { getColorScale } from '../utils/colorScales';
 
 interface BuildingProps {
@@ -44,20 +43,26 @@ export const Building = ({
   selectedMetric,
   rotation = [0, 0, 0]
 }: BuildingProps) => {
-  // Generate floors with heatmap coloring
   const floors = useMemo(() => {
     const floorGeometry = new THREE.BoxGeometry(width, floorHeight, depth);
     const floors = [];
 
-    // Get all metric values for the selected metric
-    const metricValues = metrics
-      .filter(m => m.metric_name === selectedMetric)
-      .map(m => m.value);
+    // Filter metrics for the selected metric type only
+    const relevantMetrics = metrics.filter(m => m.metric_name === selectedMetric);
+    const metricValues = relevantMetrics.map(m => m.value);
 
-    // Create color scale if we have values
+    // Create color scale only if we have values
     const colorScale = metricValues.length > 0
       ? getColorScale(metricValues)
       : null;
+
+    // Debug logging
+    console.log('Building metrics:', {
+      name,
+      selectedMetric,
+      metricValues,
+      relevantMetrics
+    });
 
     for (let i = 0; i < floorCount; i++) {
       const floorName = `${i + 1} ${name}`;
@@ -65,17 +70,16 @@ export const Building = ({
       const isSelected = selectedFloor === floorName;
       const floorY = (i * floorHeight) + (floorHeight / 2);
 
-      // Find this floor's metric value
-      const floorMetric = metrics.find(
-        m => m.floor === floorName && m.metric_name === selectedMetric
-      );
+      // Find the metric for this floor
+      const floorMetric = relevantMetrics.find(m => m.floor === floorName);
 
       // Determine floor color
-      let floorColor = '#ffffff'; // Default white
+      let floorColor = '#ffffff';
       if (isSelected) {
         floorColor = selectedColor;
       } else if (floorMetric && colorScale) {
         floorColor = colorScale(floorMetric.value);
+        console.log(`Floor ${floorName} color:`, floorColor, 'value:', floorMetric.value);
       }
 
       floors.push(
@@ -92,6 +96,8 @@ export const Building = ({
             e.stopPropagation();
             onSelectFloor(isSelected ? null : floorName);
           }}
+          castShadow
+          receiveShadow
         >
           <meshStandardMaterial
             color={floorColor}
@@ -109,7 +115,10 @@ export const Building = ({
   ]);
 
   return (
-    <group position={position instanceof THREE.Vector3 ? position : new THREE.Vector3(...position)} rotation={new THREE.Euler(...rotation)}>
+    <group
+      position={position instanceof THREE.Vector3 ? position : new THREE.Vector3(...position)}
+      rotation={new THREE.Euler(...rotation)}
+    >
       {floors}
     </group>
   );

@@ -1,0 +1,43 @@
+floor,room,metric_name,value,timestamp,metric_type
+1 West,,patient_satisfaction,85.5,2024-01-01,floor
+1 West,,staff_retention,76.5,2024-01-01,floor
+1 West,,fall_risk,15.5,2024-01-01,floor
+2 West,,patient_satisfaction,89.2,2024-01-01,floor
+2 West,,staff_retention,81.3,2024-01-01,floor
+2 West,,fall_risk,13.2,2024-01-01,floor
+2 West,Office 1,staff_satisfaction,84.5,2024-01-01,room
+2 West,Office 2,staff_satisfaction,82.7,2024-01-01,room
+2 West,Office 3,staff_satisfaction,86.2,2024-01-01,room
+3 West,,patient_satisfaction,87.8,2024-01-01,floor
+3 West,,staff_retention,79.7,2024-01-01,floor
+3 West,,fall_risk,14.3,2024-01-01,floor
+4 West,,patient_satisfaction,86.4,2024-01-01,floor
+4 West,,staff_retention,78.9,2024-01-01,floor
+4 West,,fall_risk,14.8,2024-01-01,floor
+1 East,,patient_satisfaction,88.5,2024-01-01,floor
+1 East,,staff_retention,82.1,2024-01-01,floor
+1 East,,fall_risk,13.8,2024-01-01,floor
+2 East,,patient_satisfaction,90.1,2024-01-01,floor
+2 East,,staff_retention,83.5,2024-01-01,floor
+2 East,,fall_risk,12.9,2024-01-01,floor
+3 East,,patient_satisfaction,89.3,2024-01-01,floor
+3 East,,staff_retention,80.8,2024-01-01,floor
+3 East,,fall_risk,13.5,2024-01-01,floor
+3 East,Patient 1,fall_risk,12.9,2024-01-01,room
+3 East,Patient 2,fall_risk,14.2,2024-01-01,room
+3 East,Patient 3,fall_risk,13.1,2024-01-01,room
+3 East,Patient 4,fall_risk,13.6,2024-01-01,room
+3 East,Patient 5,fall_risk,14.5,2024-01-01,room
+3 East,Patient 6,fall_risk,12.3,2024-01-01,room
+3 East,Office 1,staff_satisfaction,82.1,2024-01-01,room
+3 East,Office 2,staff_satisfaction,79.5,2024-01-01,room
+3 East,Office 3,staff_satisfaction,83.9,2024-01-01,room
+2 East,N2E-1,staff_satisfaction,82.5,2024-01-01,room
+2 East,N2E-1,workload_balance,75.3,2024-01-01,room
+2 East,N2E-1,response_efficiency,88.4,2024-01-01,room
+2 East,O2E-1,staff_satisfaction,79.3,2024-01-01,room
+2 East,O2E-1,workspace_utilization,85.1,2024-01-01,room
+2 East,O2E-1,equipment_availability,92.4,2024-01-01,room
+2 East,T2E-1,equipment_utilization,78.5,2024-01-01,room
+2 East,T2E-1,patient_capacity,82.3,2024-01-01,room
+2 East,T2E-1,treatment_completion,91.2,2024-01-01,room

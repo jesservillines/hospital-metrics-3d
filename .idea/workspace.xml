@@ -4,15 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1286172f-6e2e-4839-9203-cb99406f1db0" name="Changes" comment="savings changes to panels">
+    <list default="true" id="1286172f-6e2e-4839-9203-cb99406f1db0" name="Changes" comment="update README.md with current state of project">
       <change afterPath="$PROJECT_DIR$/.idea/claude_hospital_metrics_3d.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/services/metrics_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/floor_metrics.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/patient_metrics.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/room_metrics.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/staff_metrics.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/public/data/floor_layout.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/CraigEnvironment.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Environment.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorLayout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/PatientRoomDetail.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/RoomDetail.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/services/roomDataService.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Building.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Building.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Controls.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Controls.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorDetail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorDetail.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/hooks/useMetrics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/hooks/useMetrics.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,12 +47,12 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "jesservillines"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;jesservillines&quot;
   }
-}]]></component>
+}</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/jesservillines/hospital-metrics-3d.git&quot;,
@@ -63,6 +79,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/jessevillines/Documents/1.0_projects/claude_hospital_metrics_3d",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -78,6 +95,11 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\jessevillines\Documents\1.0_projects\claude_hospital_metrics_3d" />
       <recent name="C:\Users\jessevillines\Documents\1.0_projects\claude_hospital_metrics_3d\hospital-3d-metrics" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\jessevillines\Documents\1.0_projects\claude_hospital_metrics_3d\hospital-3d-metrics\frontend\public" />
+      <recent name="C:\Users\jessevillines\Documents\1.0_projects\claude_hospital_metrics_3d\hospital-3d-metrics\frontend\src\data" />
+      <recent name="C:\Users\jessevillines\Documents\1.0_projects\claude_hospital_metrics_3d\hospital-3d-metrics\frontend\src\services" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -96,7 +118,9 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1733593993052</updated>
-      <workItem from="1733593994121" duration="34000000" />
+      <workItem from="1733593994121" duration="54202000" />
+      <workItem from="1733708964351" duration="4977000" />
+      <workItem from="1733716831714" duration="1479000" />
     </task>
     <task id="LOCAL-00001" summary="commiting app as is after day 1 dev">
       <option name="closed" value="true" />
@@ -146,7 +170,31 @@
       <option name="project" value="LOCAL" />
       <updated>1733620237323</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="added in floor detail mode and a few other features">
+      <option name="closed" value="true" />
+      <created>1733628795151</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1733628795151</updated>
+    </task>
+    <task id="LOCAL-00008" summary="update README.md with current state of project">
+      <option name="closed" value="true" />
+      <created>1733629637443</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1733629637443</updated>
+    </task>
+    <task id="LOCAL-00009" summary="update README.md with current state of project">
+      <option name="closed" value="true" />
+      <created>1733629774643</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1733629774643</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -158,6 +206,8 @@
     <MESSAGE value="adding image to README.md" />
     <MESSAGE value="adding author details to README" />
     <MESSAGE value="savings changes to panels" />
-    <option name="LAST_COMMIT_MESSAGE" value="savings changes to panels" />
+    <MESSAGE value="added in floor detail mode and a few other features" />
+    <MESSAGE value="update README.md with current state of project" />
+    <option name="LAST_COMMIT_MESSAGE" value="update README.md with current state of project" />
   </component>
 </project>

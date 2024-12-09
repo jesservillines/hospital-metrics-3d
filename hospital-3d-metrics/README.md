@@ -64,6 +64,9 @@ This application visualizes hospital metrics across different floors and buildin
 hospital-3d-metrics/
 ├── frontend/
 │   ├── public/
+│   │   ├── textures/
+│   │   └── data/
+│   │       └── floor_layout.csv
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── Building.tsx
@@ -72,7 +75,14 @@ hospital-3d-metrics/
 │   │   │   ├── HospitalView.tsx
 │   │   │   ├── Controls.tsx
 │   │   │   ├── MetricsPanel.tsx
-│   │   │   └── FloorDetail.tsx
+│   │   │   ├── FloorDetail.tsx
+│   │   │   ├── FloorLayout.tsx
+│   │   │   ├── PatientRoomDetail.tsx
+│   │   │   ├── RoomDetail.tsx
+│   │   │   ├── CraigEnvironment.tsx -optional
+│   │   │   └── Environment.tsx -optional
+│   │   ├── services/
+│   │   │   └── roomDataService.ts
 │   │   ├── utils/
 │   │   │   └── colorScales.ts
 │   │   ├── hooks/
@@ -86,9 +96,14 @@ hospital-3d-metrics/
 │   │   ├── __init__.py
 │   │   ├── main.py
 │   │   ├── models.py
-│   │   └── routes.py
+│   │   ├── routes.py
+│   │   └── services/
+│   │       └── metrics_service.py
 │   ├── data/
-│   │   └── initial_metrics.csv
+│   │   ├──floor_metrics.csv
+│   │   ├──room_metrics.csv
+│   │   ├──patient_metrics.csv
+│   │   └──staff_metrics.csv
 │   └── requirements.txt
 └── README.md
 ```
