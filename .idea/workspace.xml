@@ -4,13 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1286172f-6e2e-4839-9203-cb99406f1db0" name="Changes" comment="I broke it, but here's everything">
+    <list default="true" id="1286172f-6e2e-4839-9203-cb99406f1db0" name="Changes" comment="Fixed the overview and metrics panel">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/floor_metrics.csv" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/floor_metrics.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorDetail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorDetail.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/hooks/useMetrics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/hooks/useMetrics.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,7 +100,7 @@
       <updated>1733593993052</updated>
       <workItem from="1733593994121" duration="54202000" />
       <workItem from="1733708964351" duration="4977000" />
-      <workItem from="1733716831714" duration="5707000" />
+      <workItem from="1733716831714" duration="7377000" />
     </task>
     <task id="LOCAL-00001" summary="commiting app as is after day 1 dev">
       <option name="closed" value="true" />
@@ -184,7 +182,15 @@
       <option name="project" value="LOCAL" />
       <updated>1733718416142</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Fixed the overview and metrics panel">
+      <option name="closed" value="true" />
+      <created>1733803431325</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1733803431325</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -199,6 +205,7 @@
     <MESSAGE value="added in floor detail mode and a few other features" />
     <MESSAGE value="update README.md with current state of project" />
     <MESSAGE value="I broke it, but here's everything" />
-    <option name="LAST_COMMIT_MESSAGE" value="I broke it, but here's everything" />
+    <MESSAGE value="Fixed the overview and metrics panel" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed the overview and metrics panel" />
   </component>
 </project>

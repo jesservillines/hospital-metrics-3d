@@ -1,3 +1,4 @@
+// MetricsPanel.tsx
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,8 +62,6 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
     selectedMetrics.includes(m.metric_name) &&
     m.metric_type === 'floor'
   );
-
-  console.log('Filtered floor metrics:', floorMetrics);
 
   // Group metrics by category
   const groupMetricsByCategory = (metrics: Metric[]): MetricGroups => {
@@ -134,9 +133,9 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
   const getMetricProgress = (metric: Metric): number => {
     const value = metric.value;
     if (metric.metric_name.includes('risk')) {
-      return Math.min(value, 100); // Risk metrics should still show as percentage
+      return Math.min(value, 100);
     }
-    return Math.min(value, 100); // Ensure value doesn't exceed 100%
+    return Math.min(value, 100);
   };
 
   const groupedMetrics = groupMetricsByCategory(floorMetrics);
@@ -174,8 +173,8 @@ export const MetricsPanel: React.FC<MetricsPanelProps> = ({
                 return (
                   <div key={category} className="space-y-4">
                     <h3 className="font-semibold text-sm text-gray-500">{category}</h3>
-                    {categoryMetrics.map((metric) => (
-                      <div key={metric.metric_name} className="space-y-2">
+                    {categoryMetrics.map((metric, index) => (
+                      <div key={`${category}-${metric.metric_name}-${index}`} className="space-y-2">
                         <div className="flex justify-between">
                           <span className="font-medium">
                             {formatMetricName(metric.metric_name)}

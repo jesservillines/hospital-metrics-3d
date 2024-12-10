@@ -1,3 +1,4 @@
+// frontend/src/components/HospitalView.tsx
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import { Building } from './Building';
@@ -48,7 +49,7 @@ const buildingConfigs = {
 };
 
 export const HospitalView = () => {
-  // All state hooks
+  // State
   const [hoveredFloor, setHoveredFloor] = useState<string | null>(null);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('patient_satisfaction');
@@ -61,15 +62,13 @@ export const HospitalView = () => {
       .map(m => m.value)
   );
   const [showFloorDetail, setShowFloorDetail] = useState(false);
-  const [roomsData, setRoomsData] = useState<any>(null);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Refs
   const controlsRef = useRef<any>(null);
-
-  // Initial position
   const initialPosition = useMemo(() => new THREE.Vector3(75, 45, 0), []);
 
-  // Metrics hook
+  // Hooks
   const {
     metrics,
     loading,
@@ -80,24 +79,47 @@ export const HospitalView = () => {
     fetchAllFloorMetrics
   } = useMetrics();
 
-  // Callbacks
-  const handleFloorClick = useCallback(async (floor: string | null) => {
-    if (showFloorDetail && floor === selectedFloor) return;
+  // Initialize room data
+  useEffect(() => {
+    const initRoomData = async () => {
+      try {
+        await roomDataService.loadFromCSV('/data/floor_layout.csv');
+        setIsDataLoaded(true);
+        console.log('Room data loaded successfully');
+      } catch (error) {
+        console.error('Error loading room data:', error);
+      }
+    };
 
-    if (selectedFloor === floor) {
+    initRoomData();
+  }, []);
+
+  // Handle floor selection
+  const handleFloorClick = useCallback(async (floor: string | null) => {
+    console.log('Floor clicked:', floor);
+
+    if (floor === selectedFloor && showFloorDetail) {
       setSelectedFloor(null);
       setShowFloorDetail(false);
-    } else {
+      return;
+    }
+
+    if (floor && isDataLoaded) {
       setSelectedFloor(floor);
-      setShowFloorDetail(!!floor);
-      if (floor) {
-        await fetchFloorMetrics(floor);
-        if (selectedMetric) {
-          await fetchHeatmapData(floor, selectedMetric);
-        }
+      setShowFloorDetail(true);
+      await fetchFloorMetrics(floor);
+      if (selectedMetric) {
+        await fetchHeatmapData(floor, selectedMetric);
+      }
+
+      // Update camera position for floor detail view
+      if (controlsRef.current) {
+        controlsRef.current.target.set(0, EXPLOSION_HEIGHT, 0);
+        controlsRef.current.object.position.set(0, EXPLOSION_HEIGHT + 40, 0);
+        controlsRef.current.update();
       }
     }
-  }, [showFloorDetail, selectedFloor, selectedMetric, fetchFloorMetrics, fetchHeatmapData]);
+  }, [selectedFloor, showFloorDetail, isDataLoaded, fetchFloorMetrics, fetchHeatmapData, selectedMetric]);
 
   const handleMetricChange = useCallback(async (metric: string) => {
     setSelectedMetric(metric);
@@ -117,16 +139,6 @@ export const HospitalView = () => {
   useEffect(() => {
     fetchAllFloorMetrics();
   }, [fetchAllFloorMetrics]);
-
-  useEffect(() => {
-    if (showFloorDetail && controlsRef.current) {
-      if (!selectedFloor) {
-        controlsRef.current.object.position.set(0, EXPLOSION_HEIGHT + 40, 0);
-        controlsRef.current.setAzimuthalAngle(0);
-        controlsRef.current.setPolarAngle(0);
-      }
-    }
-  }, [showFloorDetail, selectedFloor]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -240,17 +252,24 @@ export const HospitalView = () => {
           />
         </group>
 
-        {showFloorDetail && selectedFloor && roomsData && (
-          <group position={[0, EXPLOSION_HEIGHT, 0]}>
-            <FloorDetail
-              floorName={selectedFloor}
-              onClose={() => {
-                setSelectedFloor(null);
-                setShowFloorDetail(false);
-              }}
-              metrics={currentMetrics}
-              selectedMetric={selectedMetric}
-              roomsData={roomsData.getFloor(selectedFloor)}
+{showFloorDetail && selectedFloor && isDataLoaded && (
+  <group position={[0, EXPLOSION_HEIGHT, 0]}>
+    <FloorDetail
+      floorName={selectedFloor}
+      onClose={() => {
+        setSelectedFloor(null);
+        setShowFloorDetail(false);
+
+        // Reset camera position when closing floor detail
+        if (controlsRef.current) {
+          controlsRef.current.target.set(0, 0, 0);
+          controlsRef.current.object.position.copy(initialPosition);
+          controlsRef.current.update();
+        }
+      }}
+      metrics={currentMetrics}
+      selectedMetric={selectedMetric}
+      roomsData={roomDataService}
             />
           </group>
         )}

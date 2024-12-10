@@ -1,7 +1,9 @@
+// frontend/src/components/FloorDetail.tsx
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { FloorLayout } from './FloorLayout';
 import { Room } from '../services/roomDataService';
+import type { RoomDataService } from '../services/roomDataService';
 
 interface RoomData {
   room_id: string;
@@ -26,9 +28,7 @@ interface FloorDetailProps {
     metric_type: string;
   }>;
   selectedMetric: string;
-  roomsData: {
-    rooms: Room[];
-  };
+  roomsData: RoomDataService;
 }
 
 export const FloorDetail: React.FC<FloorDetailProps> = ({
@@ -38,36 +38,20 @@ export const FloorDetail: React.FC<FloorDetailProps> = ({
   selectedMetric,
   roomsData
 }) => {
-  // Debug logging
-  console.log('FloorDetail Props:', {
-    floorName,
-    metricsCount: metrics?.length,
-    selectedMetric,
-    roomsCount: roomsData?.rooms?.length
-  });
-
+  // Get floor data using the service's getFloor method
   const floorRooms = useMemo(() => {
-    if (!roomsData?.rooms) {
-      console.warn('No room data available for floor:', floorName);
+    try {
+      const floorData = roomsData.getFloor(floorName);
+      if (!floorData) {
+        console.warn('No floor data found for:', floorName);
+        return [];
+      }
+      console.log('Floor data loaded:', floorData);
+      return floorData.rooms || [];
+    } catch (error) {
+      console.error('Error getting floor data:', error);
       return [];
     }
-
-    // Transform room data to match Room interface
-    const transformedRooms = roomsData.rooms.map(room => ({
-      id: room.id,
-      floor: floorName,
-      type: room.type,
-      name: room.name,
-      width: room.width,
-      depth: room.depth,
-      x_position: room.x_position,
-      z_position: room.z_position,
-      properties: room.properties,
-      metrics: room.metrics
-    }));
-
-    console.log('Transformed rooms:', transformedRooms);
-    return transformedRooms;
   }, [roomsData, floorName]);
 
   return (
@@ -82,22 +66,26 @@ export const FloorDetail: React.FC<FloorDetailProps> = ({
         <meshStandardMaterial color="#f0f0f0" />
       </mesh>
 
-      {/* Render the floor layout if we have rooms */}
-      {floorRooms.length > 0 ? (
-        <FloorLayout
-          floorName={floorName}
-          rooms={floorRooms}
-          selectedMetric={selectedMetric}
-          metrics={metrics}
-          onRoomSelect={(room) => {
-            console.log('Selected room:', room);
-          }}
-        />
+      {/* Loading state when no rooms are available */}
+      {floorRooms.length === 0 ? (
+        <group position={[0, 2, 0]}>
+          <mesh>
+            <boxGeometry args={[2, 2, 2]} />
+            <meshStandardMaterial color="#cccccc" />
+          </mesh>
+        </group>
       ) : (
-        <mesh position={[0, 1, 0]}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="red" />
-        </mesh>
+        <group position={[0, 0, 0]}>
+          <FloorLayout
+            floorName={floorName}
+            rooms={floorRooms}
+            selectedMetric={selectedMetric}
+            metrics={metrics}
+            onRoomSelect={(room) => {
+              console.log('Selected room:', room);
+            }}
+          />
+        </group>
       )}
     </group>
   );
