@@ -2,8 +2,6 @@
 
 A 3D visualization dashboard for hospital metrics using React Three Fiber and FastAPI. This project provides an interactive 3D representation of hospital buildings with real-time metrics visualization.
 
-![Alt text](app_demo.jpg "Demo of 3d Hospital App")
-
 ## Project Overview
 
 This application visualizes hospital metrics across different floors and buildings in a 3D environment, allowing for intuitive data exploration and comparison. The visualization includes:
@@ -21,43 +19,77 @@ This application visualizes hospital metrics across different floors and buildin
 - Connected bridges between buildings
 - Adjacent garden area
 
-### Current Features
+### Implemented Features
 1. Main Hospital View:
-   - 3D visualization of hospital buildings
-   - Interactive floor selection with hover states
-   - Heat map visualization for selected metrics
-   - Free camera control for building exploration
-   - Collapsible controls panel
-   - Hover-activated metrics display
+   - 3D visualization of hospital buildings ✓
+   - Interactive floor selection with hover states ✓
+   - Heat map visualization for selected metrics ✓
+   - Free camera control for building exploration ✓
+   - Collapsible controls panel ✓
+   - Hover-activated metrics display ✓
 
 2. Floor Detail View:
-   - Exploded view showing detailed room layout
-   - Patient rooms arranged in two rows
-   - Therapy rooms and offices with distinct layouts
-   - Initial top-down perspective with free camera control
-   - Persistent metrics panel with "Back to Overview" option
-   - Heat map visualization at room level
-   - Smooth transitions between views
+   - Exploded view showing detailed room layout ✓
+   - Patient rooms arranged in two rows ✓
+   - Therapy rooms and offices with distinct layouts ✓
+   - Initial top-down perspective with free camera control ✓
+   - Persistent metrics panel with "Back to Overview" option ✓
+   - Heat map visualization at room level ✓
+   - Smooth transitions between views ✓
 
 3. Metrics System:
-   - Dynamic metric filtering by categories:
-     - Patient Metrics
-     - Staff Metrics
-   - Real-time metrics data display
+   - Dynamic metric filtering by categories ✓
+   - Real-time metrics data display ✓
    - Metrics currently tracked:
-     - Patient satisfaction
-     - Staff retention
-     - Fall risk
-   - Category-based metric grouping
-   - Multi-select metric display
+     - Patient satisfaction ✓
+     - Staff retention ✓
+     - Fall risk ✓
+     - Nurse response time ✓
+     - Therapy completion rate ✓
+     - Equipment utilization ✓
+     - Department efficiency ✓
+     - Space utilization ✓
+   - Category-based metric grouping ✓
+   - Multi-select metric display ✓
 
 4. UI/UX Features:
-   - Collapsible control panel
-   - Context-sensitive metrics display
-   - Smooth transitions between views
-   - Persistent metrics in detail view
-   - Responsive hover states
-   - Clean, uncluttered interface
+   - Collapsible control panel ✓
+   - Context-sensitive metrics display ✓
+   - Smooth transitions between views ✓
+   - Persistent metrics in detail view ✓
+   - Responsive hover states ✓
+   - Clean, uncluttered interface ✓
+
+### Current Status
+The application is currently functional with the following key components:
+- Overview mode with working heatmap visualization
+- Floor selection and hover interactions
+- Metrics panel displaying floor-level metrics
+- Working visualization controls for metric selection
+
+### Known Issues
+- Floor detail view layout needs improvement
+- Some room-level metrics may not display correctly in floor detail view
+
+### Next Steps
+1. **High Priority:**
+   - Fix floor detail view layout and visibility
+   - Improve room layout rendering
+   - Add room-specific metric details
+   - Implement proper room-level heatmap
+
+2. **Medium Priority:**
+   - Add comparison mode between floors
+   - Implement date range filtering
+   - Add more interactive elements to rooms
+   - Enhance metric visualization options
+
+3. **Future Enhancements:**
+   - Add 2D floor plan view option
+   - Add historical data tracking
+   - Implement animated transitions
+   - Add data export functionality
+   - Add more room types and configurations
 
 ## Project Structure
 ```
@@ -79,8 +111,8 @@ hospital-3d-metrics/
 │   │   │   ├── FloorLayout.tsx
 │   │   │   ├── PatientRoomDetail.tsx
 │   │   │   ├── RoomDetail.tsx
-│   │   │   ├── CraigEnvironment.tsx -optional
-│   │   │   └── Environment.tsx -optional
+│   │   │   ├── CraigEnvironment.tsx
+│   │   │   └── Environment.tsx
 │   │   ├── services/
 │   │   │   └── roomDataService.ts
 │   │   ├── utils/
@@ -100,14 +132,15 @@ hospital-3d-metrics/
 │   │   └── services/
 │   │       └── metrics_service.py
 │   ├── data/
-│   │   ├──floor_metrics.csv
-│   │   ├──room_metrics.csv
-│   │   ├──patient_metrics.csv
-│   │   └──staff_metrics.csv
+│   │   ├── floor_metrics.csv
+│   │   ├── room_metrics.csv
+│   │   ├── patient_metrics.csv
+│   │   └── staff_metrics.csv
 │   └── requirements.txt
 └── README.md
 ```
 
+## Setup Instructions
 ## Setup Instructions
 
 ### Backend Setup
@@ -167,7 +200,7 @@ npm run dev
 ```
 The frontend will run on http://localhost:5173
 
-## Technologies Used
+## Technology Stack
 - Frontend:
   - React + TypeScript
   - Three.js / React Three Fiber
@@ -180,55 +213,6 @@ The frontend will run on http://localhost:5173
   - Pandas
   - Pydantic
 
-## API Documentation
-The backend provides the following endpoints:
-
-### GET /api/metrics
-Retrieves metrics data with optional filtering
-- Query Parameters:
-  - floor (optional): Filter by floor name
-  - metric_name (optional): Filter by metric type
-
-### POST /api/metrics/filter
-Filters metrics based on provided criteria
-- Request Body:
-  - metric_name (optional)
-  - start_date (optional)
-  - end_date (optional)
-
-## Future Development
-Planned features and improvements:
-- [ ] Improve floor layout, look, and functionality
-- [ ] Create unique floor layout for each floor
-- [ ] Implement date range filtering
-- [ ] Add metric comparison features
-- [ ] Add 2D floor plan view option
-- [ ] Enhance heat map visualization with legend
-- [ ] Add more metrics and data points
-- [ ] Implement real-time data updates
-- [ ] Add user authentication
-- [ ] Enhance mobile responsiveness
-- [ ] Add animated transitions between views
-- [ ] Add more room types and configurations
-- [ ] Implement room detail panel
-- [ ] Add historical data tracking
-- [ ] Implement comparison mode between floors
-- [ ] Add data export functionality
-
-## Known Issues
-- None at present
-
-## Recent Updates
-- Added exploded floor view with detailed room layout
-- Implemented collapsible control panel
-- Added persistent metrics panel in floor detail view
-- Fixed camera control issues
-- Improved UI responsiveness
-- Added smooth transitions between views
-
-## Note
-All information displayed is demo data and not representative of real patient information.
-
 ## Contributing
 1. Fork the repository
 2. Create a feature branch
@@ -240,4 +224,8 @@ All information displayed is demo data and not representative of real patient in
 [MIT License](LICENSE)
 
 ## Contact
-Please reach out to the author at: https://www.linkedin.com/in/jesse-villines/ if you have questions!
+Please reach out to the author at: [LinkedIn Profile](https://www.linkedin.com/in/jesse-villines/) if you have questions!
+
+## Note
+All information displayed is demo data and not representative of real patient information.
+

@@ -13,8 +13,6 @@ interface Metric {
 interface DetailedMetrics {
   floorMetrics: Metric[];
   roomMetrics: Metric[];
-  patientMetrics?: Metric[];
-  staffMetrics?: Metric[];
 }
 
 export const useMetrics = () => {
@@ -39,61 +37,73 @@ export const useMetrics = () => {
     return 'An unexpected error occurred';
   };
 
-  // Fetch all initial metrics for overview mode
-  const fetchAllMetrics = useCallback(async () => {
+  const fetchMetricsForFloor = useCallback(async (floor: string) => {
+    try {
+      const encodedFloor = encodeURIComponent(floor);
+      // Fetch all metrics for the floor
+      const response = await axios.get(`${API_BASE_URL}/floors/${encodedFloor}/metrics`);
+      console.log(`Received metrics for floor ${floor}:`, response.data);
+
+      if (response.data && Array.isArray(response.data)) {
+        return response.data.filter(m => m.metric_type === 'floor');
+      }
+      return [];
+    } catch (err) {
+      console.error(`Error fetching metrics for floor ${floor}:`, err);
+      return [];
+    }
+  }, []);
+
+  const fetchAllFloorMetrics = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/metrics`);
-      if (response.data && Array.isArray(response.data)) {
-        const floorLevelMetrics = response.data.filter(m => m.metric_type === 'floor');
-        setCurrentMetrics(floorLevelMetrics);
-        setMetrics({
-          floorMetrics: floorLevelMetrics,
-          roomMetrics: []
-        });
-      }
+      const floors = [
+        '1 East', '2 East', '3 East',
+        '1 West', '2 West', '3 West', '4 West'
+      ];
+
+      const allMetricsPromises = floors.map(floor => fetchMetricsForFloor(floor));
+      const allMetricsArrays = await Promise.all(allMetricsPromises);
+
+      // Combine all floor metrics
+      const combinedMetrics = allMetricsArrays.flat();
+      console.log('Combined floor metrics:', combinedMetrics);
+
+      setCurrentMetrics(combinedMetrics);
+      setMetrics(prevMetrics => ({
+        ...prevMetrics,
+        floorMetrics: combinedMetrics
+      }));
     } catch (err) {
-      console.error('Error fetching all metrics:', err);
       setError(handleApiError(err));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchMetricsForFloor]);
 
   const fetchFloorMetrics = useCallback(async (floor: string) => {
     try {
       setLoading(true);
-      const encodedFloor = encodeURIComponent(floor);
-      const response = await axios.get(`${API_BASE_URL}/floors/${encodedFloor}/metrics`);
+      const floorMetrics = await fetchMetricsForFloor(floor);
 
-      if (response.data && Array.isArray(response.data)) {
-        const floorLevelMetrics = response.data.filter(m => m.metric_type === 'floor');
-        const roomLevelMetrics = response.data.filter(m => m.metric_type === 'room');
+      setCurrentMetrics(prevMetrics => {
+        const otherFloors = prevMetrics.filter(m => m.floor !== floor);
+        return [...otherFloors, ...floorMetrics];
+      });
 
-        setMetrics(prevMetrics => ({
-          ...prevMetrics,
-          floorMetrics: [
-            ...prevMetrics.floorMetrics.filter(m => m.floor !== floor),
-            ...floorLevelMetrics
-          ],
-          roomMetrics: [
-            ...prevMetrics.roomMetrics.filter(m => m.floor !== floor),
-            ...roomLevelMetrics
-          ]
-        }));
-
-        setCurrentMetrics(prevMetrics => [
-          ...prevMetrics.filter(m => m.floor !== floor),
-          ...floorLevelMetrics
-        ]);
-      }
+      setMetrics(prevMetrics => ({
+        ...prevMetrics,
+        floorMetrics: [
+          ...prevMetrics.floorMetrics.filter(m => m.floor !== floor),
+          ...floorMetrics
+        ]
+      }));
     } catch (err) {
-      console.error('Error fetching floor metrics:', err);
       setError(handleApiError(err));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchMetricsForFloor]);
 
   const fetchHeatmapData = useCallback(async (floor: string, metricName: string) => {
     try {
@@ -105,35 +115,27 @@ export const useMetrics = () => {
       );
 
       if (response.data && Array.isArray(response.data)) {
-        const newMetrics = response.data.filter(m => m.metric_type === 'floor');
-
+        // Keep existing metrics and only update the heatmap metric
         setCurrentMetrics(prevMetrics => {
-          const withoutFloor = prevMetrics.filter(m => m.floor !== floor);
-          return [...withoutFloor, ...newMetrics];
+          const existingMetrics = prevMetrics.filter(m =>
+            m.floor !== floor || m.metric_name !== metricName
+          );
+          return [...existingMetrics, ...response.data];
         });
-
-        // Also update the metrics state
-        setMetrics(prevMetrics => ({
-          ...prevMetrics,
-          floorMetrics: [
-            ...prevMetrics.floorMetrics.filter(m => m.floor !== floor),
-            ...newMetrics
-          ]
-        }));
       }
     } catch (err) {
-      console.error('Error fetching heatmap data:', err);
       setError(handleApiError(err));
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Initial data load
+  // Initialize metrics on mount
   useEffect(() => {
-    fetchAllMetrics();
-  }, [fetchAllMetrics]);
+    fetchAllFloorMetrics();
+  }, [fetchAllFloorMetrics]);
 
+  // Debug log current metrics state
   useEffect(() => {
     console.log('Current metrics state:', currentMetrics);
   }, [currentMetrics]);
@@ -145,6 +147,6 @@ export const useMetrics = () => {
     fetchFloorMetrics,
     fetchHeatmapData,
     currentMetrics,
-    fetchAllMetrics
+    fetchAllFloorMetrics
   };
 };

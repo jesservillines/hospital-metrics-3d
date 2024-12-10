@@ -46,10 +46,6 @@ export const FloorDetail: React.FC<FloorDetailProps> = ({
     roomsCount: roomsData?.rooms?.length
   });
 
-  // Log the actual metrics and room data
-  console.log('Metrics:', metrics);
-  console.log('Rooms Data:', roomsData);
-
   const floorRooms = useMemo(() => {
     if (!roomsData?.rooms) {
       console.warn('No room data available for floor:', floorName);
@@ -57,7 +53,7 @@ export const FloorDetail: React.FC<FloorDetailProps> = ({
     }
 
     // Transform room data to match Room interface
-    return roomsData.rooms.map(room => ({
+    const transformedRooms = roomsData.rooms.map(room => ({
       id: room.id,
       floor: floorName,
       type: room.type,
@@ -69,15 +65,10 @@ export const FloorDetail: React.FC<FloorDetailProps> = ({
       properties: room.properties,
       metrics: room.metrics
     }));
+
+    console.log('Transformed rooms:', transformedRooms);
+    return transformedRooms;
   }, [roomsData, floorName]);
-
-  // Early return if no data
-  if (!floorRooms.length) {
-    console.warn('No rooms to display for floor:', floorName);
-    return null;
-  }
-
-  console.log('Processed floor rooms:', floorRooms);
 
   return (
     <group>
@@ -91,15 +82,23 @@ export const FloorDetail: React.FC<FloorDetailProps> = ({
         <meshStandardMaterial color="#f0f0f0" />
       </mesh>
 
-      <FloorLayout
-        floorName={floorName}
-        rooms={floorRooms}
-        selectedMetric={selectedMetric}
-        metrics={metrics}
-        onRoomSelect={(room) => {
-          console.log('Selected room:', room);
-        }}
-      />
+      {/* Render the floor layout if we have rooms */}
+      {floorRooms.length > 0 ? (
+        <FloorLayout
+          floorName={floorName}
+          rooms={floorRooms}
+          selectedMetric={selectedMetric}
+          metrics={metrics}
+          onRoomSelect={(room) => {
+            console.log('Selected room:', room);
+          }}
+        />
+      ) : (
+        <mesh position={[0, 1, 0]}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color="red" />
+        </mesh>
+      )}
     </group>
   );
 };

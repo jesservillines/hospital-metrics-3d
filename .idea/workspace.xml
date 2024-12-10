@@ -4,30 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1286172f-6e2e-4839-9203-cb99406f1db0" name="Changes" comment="update README.md with current state of project">
-      <change afterPath="$PROJECT_DIR$/.idea/claude_hospital_metrics_3d.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/services/metrics_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/floor_metrics.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/patient_metrics.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/room_metrics.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/staff_metrics.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/public/data/floor_layout.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/CraigEnvironment.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Environment.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorLayout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/PatientRoomDetail.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/RoomDetail.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/services/roomDataService.ts" afterDir="false" />
+    <list default="true" id="1286172f-6e2e-4839-9203-cb99406f1db0" name="Changes" comment="I broke it, but here's everything">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/app/routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Building.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Building.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Controls.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/Controls.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/floor_metrics.csv" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/backend/data/floor_metrics.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorDetail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/FloorDetail.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/HospitalView.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/components/MetricsPanel.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/hooks/useMetrics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/hospital-3d-metrics/frontend/src/hooks/useMetrics.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -120,7 +102,7 @@
       <updated>1733593993052</updated>
       <workItem from="1733593994121" duration="54202000" />
       <workItem from="1733708964351" duration="4977000" />
-      <workItem from="1733716831714" duration="1479000" />
+      <workItem from="1733716831714" duration="5707000" />
     </task>
     <task id="LOCAL-00001" summary="commiting app as is after day 1 dev">
       <option name="closed" value="true" />
@@ -194,7 +176,15 @@
       <option name="project" value="LOCAL" />
       <updated>1733629774643</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="I broke it, but here's everything">
+      <option name="closed" value="true" />
+      <created>1733718416142</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1733718416142</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,6 +198,7 @@
     <MESSAGE value="savings changes to panels" />
     <MESSAGE value="added in floor detail mode and a few other features" />
     <MESSAGE value="update README.md with current state of project" />
-    <option name="LAST_COMMIT_MESSAGE" value="update README.md with current state of project" />
+    <MESSAGE value="I broke it, but here's everything" />
+    <option name="LAST_COMMIT_MESSAGE" value="I broke it, but here's everything" />
   </component>
 </project>

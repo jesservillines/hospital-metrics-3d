@@ -6,17 +6,18 @@ import { Garden } from './Garden';
 import { Controls } from './Controls';
 import { MetricsPanel } from './MetricsPanel';
 import { FloorDetail } from './FloorDetail';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import * as THREE from 'three';
 import { useMetrics } from '../hooks/useMetrics';
 import { roomDataService } from '../services/roomDataService';
 
+// Constants
 const FLOOR_HEIGHT = 3;
 const BUILDING_SPACING = 30;
 const EXPLOSION_HEIGHT = FLOOR_HEIGHT * 5;
 const CRAIG_BLUE = '#007dc3';
 
-// Floor-level metrics for overview mode
+// Static configurations
 const FLOOR_LEVEL_METRICS = {
   metrics: [
     { value: 'patient_satisfaction', label: 'Patient Satisfaction', category: 'Patient Metrics' },
@@ -47,6 +48,7 @@ const buildingConfigs = {
 };
 
 export const HospitalView = () => {
+  // All state hooks
   const [hoveredFloor, setHoveredFloor] = useState<string | null>(null);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('patient_satisfaction');
@@ -60,82 +62,27 @@ export const HospitalView = () => {
   );
   const [showFloorDetail, setShowFloorDetail] = useState(false);
   const [roomsData, setRoomsData] = useState<any>(null);
-  const controlsRef = useRef<any>(null);
-  const [initialPosition] = useState(() => new THREE.Vector3(75, 45, 0));
 
+  // Refs
+  const controlsRef = useRef<any>(null);
+
+  // Initial position
+  const initialPosition = useMemo(() => new THREE.Vector3(75, 45, 0), []);
+
+  // Metrics hook
   const {
     metrics,
     loading,
     error,
     fetchFloorMetrics,
     fetchHeatmapData,
-    currentMetrics
+    currentMetrics,
+    fetchAllFloorMetrics
   } = useMetrics();
 
-  // Initialize data for all floors
-  useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        console.log('Starting data initialization...');
-        const floors = [
-          '1 East', '2 East', '3 East',
-          '1 West', '2 West', '3 West', '4 West'
-        ];
-
-        // First, fetch metrics for all floors
-        await Promise.all(floors.map(floor => fetchFloorMetrics(floor)));
-
-        // Then fetch heatmap data if we have a selected metric
-        if (selectedMetric) {
-          await Promise.all(floors.map(floor =>
-            fetchHeatmapData(floor, selectedMetric)
-          ));
-        }
-
-        setRoomsData(roomDataService);
-        console.log('Initial data loaded successfully');
-      } catch (error) {
-        console.error('Error loading initial data:', error);
-      }
-    };
-
-    loadInitialData();
-  }, []); // Run only on mount
-
-  // Handle metric changes
-  useEffect(() => {
-    const updateMetrics = async () => {
-      if (selectedMetric) {
-        const floors = [
-          '1 East', '2 East', '3 East',
-          '1 West', '2 West', '3 West', '4 West'
-        ];
-        await Promise.all(floors.map(floor =>
-          fetchHeatmapData(floor, selectedMetric)
-        ));
-      }
-    };
-
-    updateMetrics();
-  }, [selectedMetric, fetchHeatmapData]);
-
-  // Camera position handling for floor detail view
-  useEffect(() => {
-    if (showFloorDetail && controlsRef.current) {
-      if (!selectedFloor) {
-        controlsRef.current.object.position.set(0, EXPLOSION_HEIGHT + 40, 0);
-        controlsRef.current.setAzimuthalAngle(0);
-        controlsRef.current.setPolarAngle(0);
-      }
-    }
-  }, [showFloorDetail, selectedFloor]);
-
+  // Callbacks
   const handleFloorClick = useCallback(async (floor: string | null) => {
-    console.log('Floor clicked:', floor);
-
-    if (showFloorDetail && floor === selectedFloor) {
-      return;
-    }
+    if (showFloorDetail && floor === selectedFloor) return;
 
     if (selectedFloor === floor) {
       setSelectedFloor(null);
@@ -153,20 +100,33 @@ export const HospitalView = () => {
   }, [showFloorDetail, selectedFloor, selectedMetric, fetchFloorMetrics, fetchHeatmapData]);
 
   const handleMetricChange = useCallback(async (metric: string) => {
-    console.log('Metric changed to:', metric);
     setSelectedMetric(metric);
     if (selectedFloor) {
       await fetchHeatmapData(selectedFloor, metric);
     }
   }, [selectedFloor, fetchHeatmapData]);
 
-  // Filter metrics for current view mode
   const getFilteredMetrics = useCallback((metrics: any[]) => {
     return metrics.filter(metric =>
       metric.metric_type === 'floor' &&
       selectedMetrics.includes(metric.metric_name)
     );
   }, [selectedMetrics]);
+
+  // Effects
+  useEffect(() => {
+    fetchAllFloorMetrics();
+  }, [fetchAllFloorMetrics]);
+
+  useEffect(() => {
+    if (showFloorDetail && controlsRef.current) {
+      if (!selectedFloor) {
+        controlsRef.current.object.position.set(0, EXPLOSION_HEIGHT + 40, 0);
+        controlsRef.current.setAzimuthalAngle(0);
+        controlsRef.current.setPolarAngle(0);
+      }
+    }
+  }, [showFloorDetail, selectedFloor]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
