@@ -4,7 +4,7 @@ import { Text, Billboard, Html } from '@react-three/drei';
 import { useSpring, animated } from '@react-spring/three';
 import { getColorScale } from '../utils/colorScales';
 import { Room } from '../services/roomDataService';
-import { RoomDetail } from './RoomDetail';
+import RoomDetail from './RoomDetail';
 
 const AnimatedMesh = animated(({ color, ...props }: any) => (
   <mesh {...props}>
@@ -27,7 +27,7 @@ interface RoomMeshProps {
   }>;
 }
 
-const RoomMesh: React.FC<RoomMeshProps> = ({
+function RoomMesh({
   room,
   isSelected,
   isHovered,
@@ -36,7 +36,7 @@ const RoomMesh: React.FC<RoomMeshProps> = ({
   onPointerOut,
   metricColor,
   metrics = []
-}) => {
+}: RoomMeshProps) {
   const height = room.type === 'hallway' ? 0.5 : 3;
   const baseColor = metricColor || getRoomTypeColor(room.type);
   const labelHeight = height + 2;
@@ -110,7 +110,7 @@ const RoomMesh: React.FC<RoomMeshProps> = ({
   );
 };
 
-const getRelevantMetrics = (room: Room, metrics: Array<{ metric_name: string; value: number }>) => {
+function getRelevantMetrics(room: Room, metrics: Array<{ metric_name: string; value: number }>) {
   const relevantMetrics = metrics.filter(metric => {
     switch (room.type) {
       case 'patient':
@@ -132,7 +132,7 @@ const getRelevantMetrics = (room: Room, metrics: Array<{ metric_name: string; va
   }));
 };
 
-const getRoomTypeColor = (type: Room['type']): string => {
+function getRoomTypeColor(type: Room['type']): string {
   const colors = {
     patient: '#90cdf4',   // Light blue
     therapy: '#9ae6b4',   // Light green
@@ -143,24 +143,24 @@ const getRoomTypeColor = (type: Room['type']): string => {
   return colors[type];
 };
 
-const formatMetricName = (name: string): string => {
+function formatMetricName(name: string): string {
   return name.split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
 
-const formatMetricValue = (value: number): string => {
+function formatMetricValue(value: number): string {
   if (value > 100) return value.toFixed(0);
   return value.toFixed(1) + '%';
 };
 
-const getFormattedRoomType = (type: string): string => {
+function getFormattedRoomType(type: string): string {
   return type.split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
 
-export interface FloorLayoutProps {
+interface FloorLayoutProps {
   floorName: string;
   rooms: Room[];
   selectedMetric?: string;
@@ -173,13 +173,13 @@ export interface FloorLayoutProps {
   onRoomSelect?: (room: Room) => void;
 }
 
-export const FloorLayout: React.FC<FloorLayoutProps> = ({
+export function FloorLayout({
   floorName,
   rooms,
   selectedMetric,
   metrics,
   onRoomSelect
-}) => {
+}: FloorLayoutProps) {
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [showDetailView, setShowDetailView] = useState(false);
@@ -269,3 +269,5 @@ export const FloorLayout: React.FC<FloorLayoutProps> = ({
     </group>
   );
 };
+
+export default FloorLayout;

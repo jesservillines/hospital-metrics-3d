@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Hospital Metrics 3D{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-container">
+        <h2 class="auth-title">Create your account</h2>
+        <p class="text-center mb-4">
+            Or <a href="/api/v1/auth/login" class="text-primary">sign in</a> to your existing account
+        </p>
+
+        {% if messages %}
+        <div class="alert alert-danger">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form id="register-form" action="/api/v1/auth/register" method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text" class="form-control" required
+                       minlength="3" maxlength="50" placeholder="Choose a username">
+                <small class="form-text text-muted">3-50 characters</small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" class="form-control" required
+                       placeholder="Enter your email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" class="form-control" required
+                       minlength="8" placeholder="Choose a password">
+                <small class="form-text text-muted">
+                    Must be at least 8 characters with uppercase, number, and special character
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="password_confirm">Confirm Password</label>
+                <input id="password_confirm" name="password_confirm" type="password" class="form-control" required
+                       minlength="8" placeholder="Confirm your password">
+            </div>
+
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="terms_accepted" name="terms_accepted" required>
+                <label class="form-check-label" for="terms_accepted">
+                    I accept the <a href="/terms" target="_blank">terms and conditions</a>
+                </label>
+            </div>
+
+            <div id="error-message" class="alert alert-danger" style="display: none;">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block mt-4">Create Account</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('register-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('password_confirm').value;
+        const errorDiv = document.getElementById('error-message');
+        
+        // Password validation
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const isLongEnough = password.length >= 8;
+
+        if (!hasUpperCase || !hasNumber || !hasSpecial || !isLongEnough) {
+            errorDiv.textContent = 'Password must be at least 8 characters with uppercase, number, and special character';
+            errorDiv.style.display = 'block';
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            errorDiv.textContent = 'Passwords do not match';
+            errorDiv.style.display = 'block';
+            return false;
+        }
+
+        // Prepare form data
+        const formData = {
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            password: password,
+            password_confirm: confirmPassword,
+            terms_accepted: document.getElementById('terms_accepted').checked
+        };
+
+        try {
+            const response = await fetch('/api/v1/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                // Registration successful, redirect to login
+                window.location.href = '/api/v1/auth/login';
+            } else {
+                const data = await response.json();
+                errorDiv.textContent = data.detail || 'Registration failed. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            errorDiv.textContent = 'An error occurred. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

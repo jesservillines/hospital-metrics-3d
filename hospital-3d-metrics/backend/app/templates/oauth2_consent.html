@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization Request - {{ page_data.client.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-8">
+        <!-- Header -->
+        <div class="flex items-center mb-8">
+            {% if page_data.client.logo_url %}
+            <img src="{{ page_data.client.logo_url }}" alt="{{ page_data.client.name }} logo" class="w-16 h-16 rounded-lg mr-4">
+            {% else %}
+            <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <span class="text-2xl font-bold text-blue-600">{{ page_data.client.name[0] }}</span>
+            </div>
+            {% endif %}
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Authorization Request</h1>
+                <p class="text-gray-600">{{ page_data.client.name }} is requesting access to your account</p>
+            </div>
+        </div>
+
+        <!-- Client Info -->
+        <div class="mb-8">
+            <p class="text-gray-600">
+                {% if page_data.client.description %}
+                {{ page_data.client.description }}
+                {% endif %}
+            </p>
+            {% if page_data.client.website %}
+            <a href="{{ page_data.client.website }}" target="_blank" rel="noopener noreferrer" 
+               class="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block">
+                Visit website
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Account Info -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-8">
+            <p class="text-gray-600">Signing in as:</p>
+            <p class="font-semibold">{{ page_data.user_email }}</p>
+        </div>
+
+        <!-- Permissions -->
+        <form id="consentForm" action="{{ page_data.consent_url }}" method="POST" class="space-y-6">
+            <div>
+                <h2 class="text-lg font-semibold mb-4">This app would like to:</h2>
+                <div class="space-y-4">
+                    {% for scope in page_data.requested_scopes %}
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" name="scopes" value="{{ scope.name }}"
+                                   {% if scope.required %}checked disabled{% endif %}
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3">
+                            <label class="font-medium text-gray-700">{{ scope.description }}</label>
+                            {% if scope.required %}
+                            <span class="text-xs text-gray-500 block">(Required)</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Legal Links -->
+            <div class="text-sm text-gray-500 space-x-4">
+                {% if page_data.client.terms_url %}
+                <a href="{{ page_data.client.terms_url }}" target="_blank" rel="noopener noreferrer" 
+                   class="text-blue-600 hover:text-blue-800">
+                    Terms of Service
+                </a>
+                {% endif %}
+                {% if page_data.client.privacy_url %}
+                <a href="{{ page_data.client.privacy_url }}" target="_blank" rel="noopener noreferrer"
+                   class="text-blue-600 hover:text-blue-800">
+                    Privacy Policy
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-4">
+                <a href="{{ page_data.cancel_url }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Allow Access
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('consentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Get selected scopes
+            const scopes = Array.from(document.querySelectorAll('input[name="scopes"]:checked'))
+                .map(cb => cb.value);
+            
+            try {
+                const response = await fetch('{{ page_data.consent_url }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        client_id: '{{ page_data.client.client_id }}',
+                        scopes: scopes,
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to submit consent');
+                }
+                
+                const result = await response.json();
+                if (result.redirect_uri) {
+                    window.location.href = result.redirect_uri;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while processing your request. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

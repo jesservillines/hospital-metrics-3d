@@ -1,22 +1,23 @@
 // frontend/src/components/HospitalView.tsx
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import { Building } from './Building';
-import { Bridge } from './Bridge';
-import { Garden } from './Garden';
-import { Controls } from './Controls';
-import { MetricsPanel } from './MetricsPanel';
-import { FloorDetail } from './FloorDetail';
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import * as THREE from 'three';
+import Building from './Building';
+import Bridge from './Bridge';
+import Garden from './Garden';
+import Controls from './Controls';
+import MetricsPanel from './MetricsPanel';
+import FloorDetail from './FloorDetail';
+import { SettingsWidget } from './SettingsWidget';
 import { useMetrics } from '../hooks/useMetrics';
 import { roomDataService } from '../services/roomDataService';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import * as THREE from 'three';
 
 // Constants
 const FLOOR_HEIGHT = 3;
 const BUILDING_SPACING = 30;
 const EXPLOSION_HEIGHT = FLOOR_HEIGHT * 5;
-const CRAIG_BLUE = '#007dc3';
+const DEFAULT_COLOR = '#007dc3';
 
 // Static configurations
 const FLOOR_LEVEL_METRICS = {
@@ -48,21 +49,16 @@ const buildingConfigs = {
   }
 };
 
-export const HospitalView = () => {
+export function HospitalView() {
   // State
   const [hoveredFloor, setHoveredFloor] = useState<string | null>(null);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('patient_satisfaction');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    FLOOR_LEVEL_METRICS.categories.slice(0, 2)
-  );
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(
-    FLOOR_LEVEL_METRICS.metrics
-      .filter(m => ['Patient Metrics', 'Staff Metrics'].includes(m.category))
-      .map(m => m.value)
-  );
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(FLOOR_LEVEL_METRICS.categories.slice(0, 2));
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(FLOOR_LEVEL_METRICS.metrics.filter(m => ['Patient Metrics', 'Staff Metrics'].includes(m.category)).map(m => m.value));
   const [showFloorDetail, setShowFloorDetail] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [heatmapColor, setHeatmapColor] = useState(DEFAULT_COLOR);
 
   // Refs
   const controlsRef = useRef<any>(null);
@@ -76,23 +72,25 @@ export const HospitalView = () => {
     fetchFloorMetrics,
     fetchHeatmapData,
     currentMetrics,
-    fetchAllFloorMetrics
+    fetchAllFloorMetrics,
+    fetchMetricsForFloor
   } = useMetrics();
 
   // Initialize room data
   useEffect(() => {
-    const initRoomData = async () => {
+    const initData = async () => {
       try {
         await roomDataService.loadFromCSV('/data/floor_layout.csv');
+        await fetchAllFloorMetrics();
         setIsDataLoaded(true);
         console.log('Room data loaded successfully');
       } catch (error) {
-        console.error('Error loading room data:', error);
+        console.error('Error loading data:', error);
       }
     };
 
-    initRoomData();
-  }, []);
+    initData();
+  }, [fetchAllFloorMetrics]);
 
   // Handle floor selection
   const handleFloorClick = useCallback(async (floor: string | null) => {
@@ -104,22 +102,23 @@ export const HospitalView = () => {
       return;
     }
 
-    if (floor && isDataLoaded) {
-      setSelectedFloor(floor);
-      setShowFloorDetail(true);
-      await fetchFloorMetrics(floor);
-      if (selectedMetric) {
-        await fetchHeatmapData(floor, selectedMetric);
+    if (floor) {
+      const [floorNumber, wing] = floor.split(' ');
+      const floorId = `${floorNumber}_${wing.toLowerCase()}`;
+      console.log('Fetching metrics for floor:', floorId);
+      
+      try {
+        await fetchMetricsForFloor(floorId);
+        setSelectedFloor(floor);
+        setShowFloorDetail(true);
+      } catch (error) {
+        console.error('Error fetching floor metrics:', error);
       }
-
-      // Update camera position for floor detail view
-      if (controlsRef.current) {
-        controlsRef.current.target.set(0, EXPLOSION_HEIGHT, 0);
-        controlsRef.current.object.position.set(0, EXPLOSION_HEIGHT + 40, 0);
-        controlsRef.current.update();
-      }
+    } else {
+      setSelectedFloor(null);
+      setShowFloorDetail(false);
     }
-  }, [selectedFloor, showFloorDetail, isDataLoaded, fetchFloorMetrics, fetchHeatmapData, selectedMetric]);
+  }, [fetchMetricsForFloor, selectedFloor, showFloorDetail]);
 
   const handleMetricChange = useCallback(async (metric: string) => {
     setSelectedMetric(metric);
@@ -129,19 +128,36 @@ export const HospitalView = () => {
   }, [selectedFloor, fetchHeatmapData]);
 
   const getFilteredMetrics = useCallback((metrics: any[]) => {
-    return metrics.filter(metric =>
-      metric.metric_type === 'floor' &&
-      selectedMetrics.includes(metric.metric_name)
+    // Get the mapping of metric names to categories
+    const metricCategories = Object.fromEntries(
+      FLOOR_LEVEL_METRICS.metrics.map(m => [m.value, m.category])
     );
-  }, [selectedMetrics]);
 
-  // Effects
-  useEffect(() => {
-    fetchAllFloorMetrics();
-  }, [fetchAllFloorMetrics]);
+    return metrics.filter(metric => {
+      const category = metricCategories[metric.metric_name];
+      return (
+        metric.metric_type === 'floor' &&
+        selectedMetrics.includes(metric.metric_name) &&
+        selectedCategories.includes(category)
+      );
+    });
+  }, [selectedMetrics, selectedCategories]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading || !isDataLoaded) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <div className="text-lg">Loading hospital data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <div className="text-lg text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-screen h-screen">
@@ -156,18 +172,25 @@ export const HospitalView = () => {
         availableMetrics={FLOOR_LEVEL_METRICS}
       />
 
-      <MetricsPanel
-        hoveredFloor={hoveredFloor}
-        selectedFloor={selectedFloor}
-        metrics={getFilteredMetrics(currentMetrics)}
-        selectedCategories={selectedCategories}
-        selectedMetrics={selectedMetrics}
-        showFloorDetail={showFloorDetail}
-        onClose={() => {
-          setSelectedFloor(null);
-          setShowFloorDetail(false);
-        }}
+      <SettingsWidget
+        onColorChange={setHeatmapColor}
+        currentColor={heatmapColor}
       />
+
+      {(hoveredFloor || selectedFloor) && (
+        <MetricsPanel
+          hoveredFloor={hoveredFloor}
+          selectedFloor={selectedFloor}
+          metrics={getFilteredMetrics(currentMetrics)}
+          selectedCategories={selectedCategories}
+          selectedMetrics={selectedMetrics}
+          showFloorDetail={showFloorDetail}
+          onClose={() => {
+            setSelectedFloor(null);
+            setShowFloorDetail(false);
+          }}
+        />
+      )}
 
       <Canvas shadows>
         <PerspectiveCamera
@@ -208,6 +231,7 @@ export const HospitalView = () => {
           <meshStandardMaterial color="#a0a0a0" />
         </mesh>
 
+        {/* Hospital Buildings */}
         <group scale={showFloorDetail ? 0.3 : 1}>
           {Object.entries(buildingConfigs).map(([name, config]) => (
             <Building
@@ -223,7 +247,7 @@ export const HospitalView = () => {
               onSelectFloor={handleFloorClick}
               hoveredFloor={hoveredFloor}
               selectedFloor={selectedFloor}
-              selectedColor={CRAIG_BLUE}
+              selectedColor={heatmapColor}
               metrics={currentMetrics}
               selectedMetric={selectedMetric}
               rotation={[0, Math.PI / 2, 0]}
@@ -244,36 +268,33 @@ export const HospitalView = () => {
             height={FLOOR_HEIGHT-5.5}
             rotation={[0, 0, 0]}
           />
-
-          <Garden
-            position={[15, 0, BUILDING_SPACING/2]}
-            width={8}
-            depth={12}
-          />
         </group>
 
-{showFloorDetail && selectedFloor && isDataLoaded && (
-  <group position={[0, EXPLOSION_HEIGHT, 0]}>
-    <FloorDetail
-      floorName={selectedFloor}
-      onClose={() => {
-        setSelectedFloor(null);
-        setShowFloorDetail(false);
-
-        // Reset camera position when closing floor detail
-        if (controlsRef.current) {
-          controlsRef.current.target.set(0, 0, 0);
-          controlsRef.current.object.position.copy(initialPosition);
-          controlsRef.current.update();
-        }
-      }}
-      metrics={currentMetrics}
-      selectedMetric={selectedMetric}
-      roomsData={roomDataService}
+        {/* Floor Detail View */}
+        {showFloorDetail && selectedFloor && (
+          <group position={[0, EXPLOSION_HEIGHT, 0]}>
+            <FloorDetail
+              floorName={selectedFloor}
+              onClose={() => {
+                setSelectedFloor(null);
+                setShowFloorDetail(false);
+                // Reset camera position
+                if (controlsRef.current) {
+                  controlsRef.current.target.set(0, 0, 0);
+                  controlsRef.current.object.position.copy(initialPosition);
+                  controlsRef.current.update();
+                }
+              }}
+              metrics={currentMetrics}
+              selectedMetric={selectedMetric}
+              roomsData={roomDataService}
+              selectedColor={heatmapColor}
             />
           </group>
         )}
       </Canvas>
     </div>
   );
-};
+}
+
+export default HospitalView;

@@ -17,7 +17,7 @@ interface BuildingProps {
   selectedFloor: string | null;
   selectedColor: string;
   metrics: Array<{
-    floor: string;
+    floor_id: string;
     metric_name: string;
     value: number;
     timestamp: string;
@@ -26,7 +26,7 @@ interface BuildingProps {
   rotation?: [number, number, number];
 }
 
-export const Building = ({
+export function Building({
   name,
   position,
   width,
@@ -42,7 +42,7 @@ export const Building = ({
   metrics,
   selectedMetric,
   rotation = [0, 0, 0]
-}: BuildingProps) => {
+}: BuildingProps) {
   const floors = useMemo(() => {
     const floorGeometry = new THREE.BoxGeometry(width, floorHeight, depth);
     const floors = [];
@@ -65,13 +65,15 @@ export const Building = ({
     });
 
     for (let i = 0; i < floorCount; i++) {
-      const floorName = `${i + 1} ${name}`;
-      const isHovered = hoveredFloor === floorName;
-      const isSelected = selectedFloor === floorName;
+      const floorNumber = i + 1;
+      const floorId = `${floorNumber}_${name.toLowerCase()}`;
+      const displayName = `${floorNumber} ${name}`;
+      const isHovered = hoveredFloor === displayName;
+      const isSelected = selectedFloor === displayName;
       const floorY = (i * floorHeight) + (floorHeight / 2);
 
       // Find the metric for this floor
-      const floorMetric = relevantMetrics.find(m => m.floor === floorName);
+      const floorMetric = relevantMetrics.find(m => m.floor_id === floorId);
 
       // Determine floor color
       let floorColor = '#ffffff';
@@ -79,47 +81,61 @@ export const Building = ({
         floorColor = selectedColor;
       } else if (floorMetric && colorScale) {
         floorColor = colorScale(floorMetric.value);
-        console.log(`Floor ${floorName} color:`, floorColor, 'value:', floorMetric.value);
+        console.log(`Floor ${displayName} color:`, floorColor, 'value:', floorMetric.value);
       }
 
       floors.push(
         <mesh
-          key={floorName}
+          key={floorId}
           position={[0, floorY, 0]}
           geometry={floorGeometry}
           onPointerOver={(e) => {
             e.stopPropagation();
-            onHoverFloor(floorName);
+            onHoverFloor(displayName);
           }}
           onPointerOut={() => onHoverFloor(null)}
           onClick={(e) => {
             e.stopPropagation();
-            onSelectFloor(isSelected ? null : floorName);
+            onSelectFloor(isSelected ? null : displayName);
           }}
           castShadow
           receiveShadow
         >
           <meshStandardMaterial
             color={floorColor}
-            transparent
-            opacity={isHovered ? 0.9 : 0.8}
+            transparent={true}
+            opacity={isHovered ? 0.8 : 1}
+            metalness={0.1}
+            roughness={0.8}
           />
         </mesh>
       );
     }
+
     return floors;
   }, [
-    name, width, height, depth, floorCount, floorHeight,
-    hoveredFloor, selectedFloor, selectedColor, metrics,
-    selectedMetric, onHoverFloor, onSelectFloor
+    width,
+    floorHeight,
+    depth,
+    floorCount,
+    hoveredFloor,
+    selectedFloor,
+    selectedColor,
+    metrics,
+    selectedMetric,
+    onHoverFloor,
+    onSelectFloor,
+    name
   ]);
 
   return (
     <group
-      position={position instanceof THREE.Vector3 ? position : new THREE.Vector3(...position)}
-      rotation={new THREE.Euler(...rotation)}
+      position={position instanceof Vector3 ? position : new Vector3(...position)}
+      rotation={new Euler(...rotation)}
     >
       {floors}
     </group>
   );
-};
+}
+
+export default Building;

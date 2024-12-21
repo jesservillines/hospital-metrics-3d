@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Hospital Metrics 3D{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center">
+            <h1 class="display-4">Welcome to Hospital Metrics 3D</h1>
+            <p class="lead">A powerful visualization tool for hospital metrics and analytics.</p>
+            
+            {% if not request.session.get('user_id') %}
+            <div class="mt-5">
+                <a href="/api/v1/auth/login" class="btn btn-primary btn-lg mx-2">Login</a>
+                <a href="/api/v1/auth/register" class="btn btn-outline-primary btn-lg mx-2">Register</a>
+            </div>
+            {% else %}
+            <div class="mt-5">
+                <a href="/api/v1/metrics/dashboard" class="btn btn-primary btn-lg">View Dashboard</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

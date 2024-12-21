@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Hospital Metrics 3D{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-container">
+        <h2 class="auth-title">Sign in to your account</h2>
+        <p class="text-center mb-4">
+            Or <a href="/api/v1/auth/register" class="text-primary">create a new account</a>
+        </p>
+
+        {% if messages %}
+        <div class="alert alert-danger">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form id="login-form" class="needs-validation" novalidate>
+            <div class="form-group mb-3">
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text" class="form-control" required>
+                <div class="invalid-feedback">
+                    Please enter your username
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" class="form-control" required>
+                <div class="invalid-feedback">
+                    Please enter your password
+                </div>
+            </div>
+
+            <div class="form-group form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                <label class="form-check-label" for="remember_me">Remember me</label>
+            </div>
+
+            <div id="error-message" class="alert alert-danger" style="display: none;">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">Sign In</button>
+
+            <p class="text-center">
+                <a href="/api/v1/auth/reset-password" class="text-muted">Forgot your password?</a>
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('login-form');
+    const errorDiv = document.getElementById('error-message');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Clear previous error messages
+        errorDiv.style.display = 'none';
+        form.classList.remove('was-validated');
+
+        // Get form data
+        const formData = new FormData(form);
+        formData.append('remember_me', document.getElementById('remember_me').checked);
+
+        try {
+            const response = await fetch('/api/v1/auth/login', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    // Don't set Content-Type here, let the browser set it with the boundary
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Store tokens
+                localStorage.setItem('access_token', data.access_token);
+                if (data.refresh_token) {
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                }
+
+                // Redirect to home page
+                window.location.href = '/';
+            } else {
+                errorDiv.textContent = data.detail || 'Login failed. Please check your credentials.';
+                errorDiv.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            errorDiv.textContent = 'An error occurred. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

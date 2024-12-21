@@ -31,11 +31,9 @@ interface RoomProperties {
 interface Room {
   id: string;
   name: string;
-  type: 'patient' | 'therapy' | 'nurse' | 'office' | 'hallway';
-  width: number;
-  depth: number;
-  properties?: RoomProperties;
-  metrics?: RoomMetrics;
+  type: 'patient' | 'nurse' | 'storage' | 'treatment' | 'hallway';
+  metrics: RoomMetrics;
+  properties: RoomProperties;
 }
 
 interface RoomDetailProps {
@@ -43,7 +41,7 @@ interface RoomDetailProps {
   onClose: () => void;
 }
 
-const getMetricDisplays = (room: Room) => {
+function getMetricDisplays(room: Room) {
   switch (room.type) {
     case 'patient':
       return [
@@ -52,29 +50,30 @@ const getMetricDisplays = (room: Room) => {
         { label: 'Humidity', value: `${room.metrics?.humidityPercent}%` },
         { label: 'Nurse Response Time', value: `${room.metrics?.nurseResponseTime} min` },
       ];
-    case 'therapy':
-      return [
-        { label: 'Equipment Utilization', value: `${room.metrics?.equipmentUtilization}%` },
-        { label: 'Patient Capacity', value: `${room.metrics?.occupancy}%` },
-        { label: 'Patient Satisfaction', value: `${room.metrics?.patientSatisfaction}%` },
-      ];
     case 'nurse':
       return [
         { label: 'Staff Utilization', value: `${room.metrics?.staffUtilization}%` },
         { label: 'Patients Assigned', value: room.metrics?.patientsAssigned },
         { label: 'Documentation', value: `${room.metrics?.documentationCompletion}%` },
       ];
-    case 'office':
+    case 'storage':
       return [
-        { label: 'Space Utilization', value: `${room.metrics?.occupancy}%` },
-        { label: 'Staff Present', value: room.metrics?.staffUtilization },
+        { label: 'Equipment Utilization', value: `${room.metrics?.equipmentUtilization}%` },
+        { label: 'Storage Capacity', value: `${room.metrics?.occupancy}%` },
       ];
+    case 'treatment':
+      return [
+        { label: 'Patient Satisfaction', value: `${room.metrics?.patientSatisfaction}%` },
+        { label: 'Treatment Capacity', value: `${room.metrics?.occupancy}%` },
+      ];
+    case 'hallway':
+      return [];
     default:
       return [];
   }
 };
 
-const getPropertyDisplays = (room: Room) => {
+function getPropertyDisplays(room: Room) {
   const properties = room.properties || {};
   const displays = [
     { label: 'Square Footage', value: properties.squareFootage },
@@ -92,7 +91,7 @@ const getPropertyDisplays = (room: Room) => {
   return displays;
 };
 
-export const RoomDetail = ({ room, onClose }: RoomDetailProps) => {
+export function RoomDetail({ room, onClose }: RoomDetailProps) {
   const roomRef = useRef<THREE.Group>(null);
   const height = room.type === 'hallway' ? 0.5 : 3;
 
@@ -187,3 +186,5 @@ export const RoomDetail = ({ room, onClose }: RoomDetailProps) => {
     </group>
   );
 };
+
+export default RoomDetail;

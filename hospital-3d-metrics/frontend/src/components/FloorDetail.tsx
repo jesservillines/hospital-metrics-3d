@@ -1,7 +1,7 @@
 // frontend/src/components/FloorDetail.tsx
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { FloorLayout } from './FloorLayout';
+import FloorLayout from './FloorLayout';
 import { Room } from '../services/roomDataService';
 import type { RoomDataService } from '../services/roomDataService';
 
@@ -19,25 +19,20 @@ interface RoomData {
 interface FloorDetailProps {
   floorName: string;
   onClose: () => void;
-  metrics: Array<{
-    floor: string;
-    room?: string;
-    metric_name: string;
-    value: number;
-    timestamp: string;
-    metric_type: string;
-  }>;
+  metrics: any[];
   selectedMetric: string;
-  roomsData: RoomDataService;
+  roomsData: any;
+  selectedColor: string;
 }
 
-export const FloorDetail: React.FC<FloorDetailProps> = ({
+export function FloorDetail({
   floorName,
   onClose,
   metrics,
   selectedMetric,
-  roomsData
-}) => {
+  roomsData,
+  selectedColor
+}: FloorDetailProps) {
   // Get floor data using the service's getFloor method
   const floorRooms = useMemo(() => {
     try {
@@ -53,6 +48,27 @@ export const FloorDetail: React.FC<FloorDetailProps> = ({
       return [];
     }
   }, [roomsData, floorName]);
+
+  const metricValues = useMemo(() => {
+    return metrics.filter((metric) => metric.floor === floorName && metric.room).map((metric) => metric.value);
+  }, [metrics, floorName]);
+
+  const getColorForValue = (value: number) => {
+    const minValue = Math.min(...metricValues);
+    const maxValue = Math.max(...metricValues);
+    const normalizedValue = (value - minValue) / (maxValue - minValue);
+    
+    // Convert the selected color to RGB
+    const color = new THREE.Color(selectedColor);
+    const { r, g, b } = color;
+    
+    // Create a gradient from white to the selected color
+    return new THREE.Color(
+      1 - normalizedValue * (1 - r),
+      1 - normalizedValue * (1 - g),
+      1 - normalizedValue * (1 - b)
+    );
+  };
 
   return (
     <group>
@@ -84,9 +100,12 @@ export const FloorDetail: React.FC<FloorDetailProps> = ({
             onRoomSelect={(room) => {
               console.log('Selected room:', room);
             }}
+            getColorForValue={getColorForValue}
           />
         </group>
       )}
     </group>
   );
-};
+}
+
+export default FloorDetail;

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}3D Visualization - Hospital Metrics 3D{% endblock %}
+
+{% block extra_css %}
+<style>
+    #visualization-container {
+        width: 100%;
+        height: 80vh;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Controls</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Data Source</label>
+                    <select class="form-select" id="dataSource">
+                        <option value="patients">Patient Distribution</option>
+                        <option value="staff">Staff Distribution</option>
+                        <option value="resources">Resource Usage</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Time Range</label>
+                    <select class="form-select" id="timeRange">
+                        <option value="day">Last 24 Hours</option>
+                        <option value="week">Last Week</option>
+                        <option value="month">Last Month</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Visualization Type</label>
+                    <select class="form-select" id="visType">
+                        <option value="heatmap">Heat Map</option>
+                        <option value="scatter">Scatter Plot</option>
+                        <option value="surface">Surface Plot</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary w-100" onclick="updateVisualization()">Update View</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div id="visualization-container"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    let visualizationData = null;
+    let currentVisualization = null;
+
+    async function fetchData() {
+        const token = localStorage.getItem('access_token');
+        const dataSource = document.getElementById('dataSource').value;
+        const timeRange = document.getElementById('timeRange').value;
+
+        try {
+            const response = await fetch(`/api/v1/metrics/${dataSource}?timeRange=${timeRange}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+
+            visualizationData = await response.json();
+            return visualizationData;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return null;
+        }
+    }
+
+    function createHeatmap(data) {
+        // Example heatmap using Plotly
+        const layout = {
+            title: 'Hospital Metrics Heatmap',
+            showlegend: true
+        };
+
+        Plotly.newPlot('visualization-container', [{
+            type: 'heatmap',
+            z: data.values,
+            x: data.x,
+            y: data.y
+        }], layout);
+    }
+
+    function createScatterPlot(data) {
+        // Example scatter plot using Plotly
+        const layout = {
+            title: 'Hospital Metrics Scatter Plot',
+            showlegend: true
+        };
+
+        Plotly.newPlot('visualization-container', [{
+            type: 'scatter3d',
+            mode: 'markers',
+            x: data.x,
+            y: data.y,
+            z: data.z,
+            marker: {
+                size: 5,
+                color: data.values,
+                colorscale: 'Viridis'
+            }
+        }], layout);
+    }
+
+    function createSurfacePlot(data) {
+        // Example surface plot using Plotly
+        const layout = {
+            title: 'Hospital Metrics Surface Plot',
+            showlegend: true
+        };
+
+        Plotly.newPlot('visualization-container', [{
+            type: 'surface',
+            z: data.values
+        }], layout);
+    }
+
+    async function updateVisualization() {
+        const data = await fetchData();
+        if (!data) return;
+
+        const visType = document.getElementById('visType').value;
+        
+        switch (visType) {
+            case 'heatmap':
+                createHeatmap(data);
+                break;
+            case 'scatter':
+                createScatterPlot(data);
+                break;
+            case 'surface':
+                createSurfacePlot(data);
+                break;
+        }
+    }
+
+    // Initial visualization
+    document.addEventListener('DOMContentLoaded', updateVisualization);
+</script>
+{% endblock %}

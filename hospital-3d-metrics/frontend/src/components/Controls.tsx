@@ -46,7 +46,7 @@ interface ControlsProps {
   availableMetrics: MetricConfig;
 }
 
-export const Controls: React.FC<ControlsProps> = ({
+export function Controls({
   onMetricChange,
   onCategoryChange,
   onMetricsSelectionChange,
@@ -55,9 +55,14 @@ export const Controls: React.FC<ControlsProps> = ({
   selectedMetrics,
   showFloorDetail,
   availableMetrics
-}) => {
+}: ControlsProps) {
   const [open, setOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Return early if metrics are not yet loaded
+  if (!availableMetrics || !availableMetrics.metrics) {
+    return null;
+  }
 
   // Filter available metrics based on selected categories
   const filteredMetrics = availableMetrics.metrics.filter(metric =>
@@ -201,4 +206,6 @@ export const Controls: React.FC<ControlsProps> = ({
       </Card>
     </div>
   );
-};
+}
+
+export default Controls;

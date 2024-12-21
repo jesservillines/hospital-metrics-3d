@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Hospital Metrics 3D{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">User Management</h2>
+
+    <div class="alert alert-success" id="success-message" style="display: none;"></div>
+    <div class="alert alert-danger" id="error-message" style="display: none;"></div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body">
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <select class="form-select role-select" data-user-id="{{ user.id }}"
+                                {% if user.username == current_user.username %}disabled{% endif %}>
+                            <option value="USER" {% if user.role == 'USER' %}selected{% endif %}>User</option>
+                            <option value="STAFF" {% if user.role == 'STAFF' %}selected{% endif %}>Staff</option>
+                            <option value="ADMIN" {% if user.role == 'ADMIN' %}selected{% endif %}>Admin</option>
+                        </select>
+                    </td>
+                    <td>
+                        <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ 'Active' if user.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if user.username != current_user.username %}
+                        <button class="btn btn-sm btn-danger" onclick="toggleUserStatus({{ user.id }}, {{ user.is_active }})">
+                            {{ 'Deactivate' if user.is_active else 'Activate' }}
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Update user role
+    document.querySelectorAll('.role-select').forEach(select => {
+        select.addEventListener('change', async function() {
+            const userId = this.dataset.userId;
+            const newRole = this.value;
+            
+            try {
+                const response = await fetch(`/api/v1/admin/users/${userId}/role`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                if (response.ok) {
+                    showMessage('success', 'Role updated successfully');
+                } else {
+                    const data = await response.json();
+                    showMessage('error', data.detail || 'Failed to update role');
+                    // Reset select to previous value
+                    this.value = this.dataset.originalRole;
+                }
+            } catch (error) {
+                showMessage('error', 'An error occurred while updating role');
+                this.value = this.dataset.originalRole;
+            }
+        });
+        
+        // Store original role value
+        select.dataset.originalRole = select.value;
+    });
+
+    // Toggle user status (activate/deactivate)
+    async function toggleUserStatus(userId, currentStatus) {
+        try {
+            const response = await fetch(`/api/v1/admin/users/${userId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ is_active: !currentStatus })
+            });
+
+            if (response.ok) {
+                // Reload page to show updated status
+                window.location.reload();
+            } else {
+                const data = await response.json();
+                showMessage('error', data.detail || 'Failed to update user status');
+            }
+        } catch (error) {
+            showMessage('error', 'An error occurred while updating user status');
+        }
+    }
+
+    // Show message helper
+    function showMessage(type, message) {
+        const successDiv = document.getElementById('success-message');
+        const errorDiv = document.getElementById('error-message');
+        
+        if (type === 'success') {
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            setTimeout(() => successDiv.style.display = 'none', 3000);
+        } else {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            successDiv.style.display = 'none';
+            setTimeout(() => errorDiv.style.display = 'none', 3000);
+        }
+    }
+</script>
+{% endblock %}

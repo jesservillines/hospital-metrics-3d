@@ -22,207 +22,189 @@ This application visualizes hospital metrics across different floors and buildin
 - Adjacent garden area
 
 ### Current Features
-1. Main Hospital View:
-   - 3D visualization of hospital buildings
-   - Interactive floor selection with hover states
-   - Heat map visualization for selected metrics
-   - Free camera control for building exploration
-   - Collapsible controls panel
-   - Hover-activated metrics display
 
-2. Floor Detail View:
-   - Exploded view showing detailed room layout
-   - Patient rooms arranged in two rows
-   - Therapy rooms and offices with distinct layouts
-   - Initial top-down perspective with free camera control
-   - Persistent metrics panel with "Back to Overview" option
-   - Heat map visualization at room level
-   - Smooth transitions between views
+#### 1. Authentication System
+- Secure user authentication with JWT tokens
+- Role-based access control (Admin, Staff, User)
+- User registration with email verification
+- Password reset functionality
+- Session management with token blacklisting
+- Secure logout process
+- Profile management for each user role
 
-3. Metrics System:
-   - Dynamic metric filtering by categories:
-     - Patient Metrics
-     - Staff Metrics
-   - Real-time metrics data display
-   - Metrics currently tracked:
-     - Patient satisfaction
-     - Staff retention
-     - Fall risk
-   - Category-based metric grouping
-   - Multi-select metric display
+#### 2. Main Hospital View
+- 3D visualization of hospital buildings
+- Interactive floor selection with hover states
+- Heat map visualization for selected metrics
+- Free camera control for building exploration
+- Collapsible controls panel
+- Hover-activated metrics display
 
-4. UI/UX Features:
-   - Collapsible control panel
-   - Context-sensitive metrics display
-   - Smooth transitions between views
-   - Persistent metrics in detail view
-   - Responsive hover states
-   - Clean, uncluttered interface
+#### 3. Floor Detail View
+- Exploded view showing detailed room layout
+- Patient rooms arranged in two rows
+- Therapy rooms and offices with distinct layouts
+- Initial top-down perspective with free camera control
+- Persistent metrics panel with "Back to Overview" option
+- Heat map visualization at room level
+- Smooth transitions between views
+
+#### 4. Metrics System
+- Dynamic metric filtering by categories:
+  - Patient Metrics
+  - Staff Metrics
+- Real-time metrics data display
+- Metrics currently tracked:
+  - Patient satisfaction
+  - Staff retention
+  - Fall risk
+- Category-based metric grouping
+- Multi-select metric display
+
+#### 5. UI/UX Features
+- Collapsible control panel
+- Context-sensitive metrics display
+- Smooth transitions between views
+- Persistent metrics in detail view
+- Responsive hover states
+- Clean, uncluttered interface
+- Role-specific navigation
+- Error handling with user feedback
+
+### Current Status and Next Steps
+
+#### Backend Status
+1. **Authentication & Authorization**
+   - ✓ JWT-based authentication implemented
+   - ✓ Token blacklisting for secure logout
+   - ✓ Role-based access control
+   - ✓ User registration and profile management
+
+2. **API Endpoints**
+   - ✓ Metrics endpoints with proper authentication
+   - ✓ Floor and room metrics endpoints
+   - ✓ Category-based filtering
+   - ✓ User management endpoints
+
+3. **Data Models**
+   - ✓ User model with roles
+   - ✓ Floor metrics model
+   - ✓ Room metrics model
+   - ✓ Metric definitions model
+
+4. **Next Backend Tasks**
+   - [ ] Update datetime handling to use timezone-aware objects
+   - [ ] Update Pydantic schemas to V2 syntax
+   - [ ] Add more comprehensive test coverage
+   - [ ] Implement metric aggregation endpoints
+   - [ ] Add data validation and sanitization
+   - [ ] Implement caching for frequently accessed metrics
+
+#### Frontend Status
+1. **3D Visualization**
+   - ✓ Basic hospital building structure
+   - ✓ Interactive floor selection
+   - ✓ Heat map visualization
+   - [ ] Room-level detail view needs improvement
+
+2. **UI Components**
+   - ✓ Metrics control panel
+   - ✓ Navigation controls
+   - ✓ Authentication forms
+   - [ ] Advanced filtering options needed
+
+3. **Next Frontend Tasks**
+   - [ ] Improve room layout rendering
+   - [ ] Add comparison mode between floors
+   - [ ] Implement date range filtering
+   - [ ] Add more interactive elements to rooms
+   - [ ] Enhance metric visualization options
+
+### Known Issues
+1. **Backend**
+   - Deprecated datetime.utcnow() usage needs updating
+   - Some API endpoints return 404 for empty results
+   - Test coverage needs improvement
+   - Schema validation needs updating to Pydantic V2
+
+2. **Frontend**
+   - Floor detail view layout needs improvement
+   - Some room-level metrics may not display correctly
+   - Camera controls need fine-tuning
+   - Performance optimization needed for large datasets
 
 ## Project Structure
 ```
 hospital-3d-metrics/
-├── frontend/
-│   ├── public/
+├── frontend/                 # React + Three.js frontend
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── Building.tsx
-│   │   │   ├── Bridge.tsx
-│   │   │   ├── Garden.tsx
-│   │   │   ├── HospitalView.tsx
-│   │   │   ├── Controls.tsx
-│   │   │   ├── MetricsPanel.tsx
-│   │   │   └── FloorDetail.tsx
-│   │   ├── utils/
-│   │   │   └── colorScales.ts
-│   │   ├── hooks/
-│   │   │   └── useMetrics.ts
-│   │   └── index.css
-│   ├── tailwind.config.js
-│   ├── vite.config.ts
-│   └── package.json
-├── backend/
+│   │   ├── components/      # React components
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── services/       # API services
+│   │   └── utils/          # Utility functions
+├── backend/                 # FastAPI backend
 │   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py
-│   │   ├── models.py
-│   │   └── routes.py
-│   ├── data/
-│   │   └── initial_metrics.csv
-│   └── requirements.txt
-└── README.md
+│   │   ├── core/           # Core functionality
+│   │   ├── models/         # Database models
+│   │   ├── routes/         # API routes
+│   │   ├── schemas/        # Pydantic schemas
+│   │   └── services/       # Business logic
+│   └── tests/              # Test suite
 ```
 
-## Setup Instructions
+## Getting Started
+
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- PostgreSQL 13+
 
 ### Backend Setup
-1. Create and activate a Python virtual environment:
+1. Create a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-2. Install backend dependencies:
+2. Install dependencies:
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-3. Start the FastAPI server:
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your database credentials and secret key
+```
+
+4. Run migrations:
+```bash
+alembic upgrade head
+```
+
+5. Start the server:
 ```bash
 uvicorn app.main:app --reload
 ```
-The backend will run on http://localhost:8000
 
 ### Frontend Setup
-1. Install Node.js dependencies:
+1. Install dependencies:
 ```bash
 cd frontend
 npm install
 ```
 
-2. Install required packages:
+2. Set up environment variables:
 ```bash
-npm install d3 @types/d3 three @react-three/fiber @react-three/drei
+cp .env.example .env
+# Edit .env with your API URL
 ```
 
-3. Set up shadcn/ui:
-```bash
-npm i -D @shadcn/ui
-npx shadcn@latest init
-```
-Select the following options:
-- Style: New York
-- Base color: Slate
-- CSS variables: Yes
-
-4. Add required components:
-```bash
-npx shadcn-ui@latest add card
-npx shadcn-ui@latest add select
-npx shadcn-ui@latest add checkbox
-npx shadcn-ui@latest add command
-npx shadcn-ui@latest add popover
-npx shadcn-ui@latest add button
-```
-
-5. Start the development server:
+3. Start the development server:
 ```bash
 npm run dev
 ```
-The frontend will run on http://localhost:5173
-
-## Technologies Used
-- Frontend:
-  - React + TypeScript
-  - Three.js / React Three Fiber
-  - shadcn/ui
-  - Tailwind CSS
-  - D3.js (for color scales)
-- Backend:
-  - Python
-  - FastAPI
-  - Pandas
-  - Pydantic
-
-## API Documentation
-The backend provides the following endpoints:
-
-### GET /api/metrics
-Retrieves metrics data with optional filtering
-- Query Parameters:
-  - floor (optional): Filter by floor name
-  - metric_name (optional): Filter by metric type
-
-### POST /api/metrics/filter
-Filters metrics based on provided criteria
-- Request Body:
-  - metric_name (optional)
-  - start_date (optional)
-  - end_date (optional)
-
-## Future Development
-Planned features and improvements:
-- [ ] Improve floor layout, look, and functionality
-- [ ] Create unique floor layout for each floor
-- [ ] Implement date range filtering
-- [ ] Add metric comparison features
-- [ ] Add 2D floor plan view option
-- [ ] Enhance heat map visualization with legend
-- [ ] Add more metrics and data points
-- [ ] Implement real-time data updates
-- [ ] Add user authentication
-- [ ] Enhance mobile responsiveness
-- [ ] Add animated transitions between views
-- [ ] Add more room types and configurations
-- [ ] Implement room detail panel
-- [ ] Add historical data tracking
-- [ ] Implement comparison mode between floors
-- [ ] Add data export functionality
-
-## Known Issues
-- None at present
-
-## Recent Updates
-- Added exploded floor view with detailed room layout
-- Implemented collapsible control panel
-- Added persistent metrics panel in floor detail view
-- Fixed camera control issues
-- Improved UI responsiveness
-- Added smooth transitions between views
-
-## Note
-All information displayed is demo data and not representative of real patient information.
 
 ## Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-[MIT License](LICENSE)
-
-## Contact
-Please reach out to the author at: https://www.linkedin.com/in/jesse-villines/ if you have questions!
+Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.

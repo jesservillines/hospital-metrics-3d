@@ -8,7 +8,7 @@ interface GardenProps {
   depth: number
 }
 
-export const Garden = ({ position, width, depth }: GardenProps) => {
+export function Garden({ position, width, depth }: GardenProps) {
   const grassRef = useRef<THREE.Mesh>(null)
 
   // Create a subtle animation for the grass
@@ -34,37 +34,29 @@ export const Garden = ({ position, width, depth }: GardenProps) => {
         ref={grassRef}
         position={[0, 0.1, 0]}
         rotation-x={-Math.PI / 2}
+        receiveShadow
       >
         <planeGeometry args={[width, depth]} />
         <meshStandardMaterial
           color="#228B22"
           transparent
           opacity={0.8}
+          side={THREE.DoubleSide}
         />
       </mesh>
 
-      {/* Trees/Bushes */}
-      {Array.from({ length: 5 }).map((_, i) => (
-        <group
-          key={i}
-          position={[
-            (Math.random() - 0.5) * width * 0.8,
-            1,
-            (Math.random() - 0.5) * depth * 0.8
-          ]}
-        >
-          {/* Tree trunk */}
-          <mesh castShadow>
-            <cylinderGeometry args={[0.2, 0.2, 2, 8]} />
-            <meshStandardMaterial color="#4A3C2A" />
-          </mesh>
-          {/* Tree foliage */}
-          <mesh position={[0, 1.5, 0]} castShadow>
-            <sphereGeometry args={[1, 16, 16]} />
-            <meshStandardMaterial color="#006400" />
-          </mesh>
-        </group>
-      ))}
+      {/* Decorative elements */}
+      <mesh position={[width/4, 0.5, depth/4]}>
+        <sphereGeometry args={[0.5]} />
+        <meshStandardMaterial color="#006400" />
+      </mesh>
+
+      <mesh position={[-width/4, 0.3, -depth/4]}>
+        <sphereGeometry args={[0.3]} />
+        <meshStandardMaterial color="#228B22" />
+      </mesh>
     </group>
   )
 }
+
+export default Garden;

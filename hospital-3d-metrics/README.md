@@ -21,44 +21,44 @@ This application visualizes hospital metrics across different floors and buildin
 
 ### Implemented Features
 1. Main Hospital View:
-   - 3D visualization of hospital buildings ✓
-   - Interactive floor selection with hover states ✓
-   - Heat map visualization for selected metrics ✓
-   - Free camera control for building exploration ✓
-   - Collapsible controls panel ✓
-   - Hover-activated metrics display ✓
+   - 3D visualization of hospital buildings 
+   - Interactive floor selection with hover states 
+   - Heat map visualization for selected metrics 
+   - Free camera control for building exploration 
+   - Collapsible controls panel 
+   - Hover-activated metrics display 
 
 2. Floor Detail View:
-   - Exploded view showing detailed room layout ✓
-   - Patient rooms arranged in two rows ✓
-   - Therapy rooms and offices with distinct layouts ✓
-   - Initial top-down perspective with free camera control ✓
-   - Persistent metrics panel with "Back to Overview" option ✓
-   - Heat map visualization at room level ✓
-   - Smooth transitions between views ✓
+   - Exploded view showing detailed room layout 
+   - Patient rooms arranged in two rows 
+   - Therapy rooms and offices with distinct layouts 
+   - Initial top-down perspective with free camera control 
+   - Persistent metrics panel with "Back to Overview" option 
+   - Heat map visualization at room level 
+   - Smooth transitions between views 
 
 3. Metrics System:
-   - Dynamic metric filtering by categories ✓
-   - Real-time metrics data display ✓
+   - Dynamic metric filtering by categories 
+   - Real-time metrics data display 
    - Metrics currently tracked:
-     - Patient satisfaction ✓
-     - Staff retention ✓
-     - Fall risk ✓
-     - Nurse response time ✓
-     - Therapy completion rate ✓
-     - Equipment utilization ✓
-     - Department efficiency ✓
-     - Space utilization ✓
-   - Category-based metric grouping ✓
-   - Multi-select metric display ✓
+     - Patient satisfaction 
+     - Staff retention 
+     - Fall risk 
+     - Nurse response time 
+     - Therapy completion rate 
+     - Equipment utilization 
+     - Department efficiency 
+     - Space utilization 
+   - Category-based metric grouping 
+   - Multi-select metric display 
 
 4. UI/UX Features:
-   - Collapsible control panel ✓
-   - Context-sensitive metrics display ✓
-   - Smooth transitions between views ✓
-   - Persistent metrics in detail view ✓
-   - Responsive hover states ✓
-   - Clean, uncluttered interface ✓
+   - Collapsible control panel 
+   - Context-sensitive metrics display 
+   - Smooth transitions between views 
+   - Persistent metrics in detail view 
+   - Responsive hover states 
+   - Clean, uncluttered interface 
 
 ### Current Status
 The application is currently functional with the following key components:
@@ -228,4 +228,3 @@ Please reach out to the author at: [LinkedIn Profile](https://www.linkedin.com/i
 
 ## Note
 All information displayed is demo data and not representative of real patient information.
-
