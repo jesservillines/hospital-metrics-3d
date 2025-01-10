@@ -1,0 +1,17 @@
+name: referral-map
+services:
+  web:
+    project: .
+    language: python
+    host: containerapp
+    docker:
+      context: .
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        requests:
+          cpu: 1
+          memory: 2Gi
+        limits:
+          cpu: 2
+          memory: 4Gi

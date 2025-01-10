@@ -186,6 +186,7 @@ try:
         )
         predictive_model = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(predictive_model)
+        predictive_model.run()
 
     with tab2:
         # Import and run the Scenario Planning page
@@ -195,6 +196,7 @@ try:
         )
         scenario_planning = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(scenario_planning)
+        scenario_planning.run()
 
 except Exception as e:
     st.error(f"Error: {str(e)}")
