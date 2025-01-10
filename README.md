@@ -39,6 +39,7 @@ This application visualizes hospital metrics across different floors and buildin
 - Free camera control for building exploration
 - Collapsible controls panel
 - Hover-activated metrics display
+- Separate visualization controls for floor and room metrics
 
 #### 3. Floor Detail View
 - Exploded view showing detailed room layout
@@ -47,19 +48,17 @@ This application visualizes hospital metrics across different floors and buildin
 - Initial top-down perspective with free camera control
 - Persistent metrics panel with "Back to Overview" option
 - Heat map visualization at room level
+- Room-specific metrics visualization with color coding
 - Smooth transitions between views
 
 #### 4. Metrics System
-- Dynamic metric filtering by categories:
-  - Patient Metrics
-  - Staff Metrics
-- Real-time metrics data display
-- Metrics currently tracked:
-  - Patient satisfaction
-  - Staff retention
-  - Fall risk
-- Category-based metric grouping
-- Multi-select metric display
+- Real-time metrics updates
+- Floor-level metrics (occupancy, staff ratio, etc.)
+- Room-level metrics (patient satisfaction, fall risk, etc.)
+- Customizable color schemes for visualization
+- Metric grouping by category (Patient, Staff, Room)
+- Dynamic filtering based on metric type and category
+- Automatic unit formatting based on metric type
 
 #### 5. UI/UX Features
 - Collapsible control panel

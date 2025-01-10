@@ -2,116 +2,75 @@
 
 ## High Priority Tasks
 
-### 1. Backend Data Integration (CRITICAL)
-- [ ] Create database tables for metrics:
-  ```sql
-  CREATE TABLE floor_metrics (
-    id SERIAL PRIMARY KEY,
-    floor_name VARCHAR(50),
-    avg_occupancy FLOAT,
-    avg_response_time FLOAT,
-    total_patients INTEGER,
-    staff_count INTEGER,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
+### 1. Room Metrics Enhancements
+- [ ] Add tooltips for room metrics in floor detail view
+- [ ] Implement room metrics history view
+- [ ] Add room comparison functionality
+- [ ] Create room metrics dashboard with charts
+- [ ] Add room status indicators (occupied, cleaning, maintenance)
 
-  CREATE TABLE room_metrics (
-    id SERIAL PRIMARY KEY,
-    room_id VARCHAR(50),
-    floor_name VARCHAR(50),
-    occupancy INTEGER,
-    nurse_response_time FLOAT,
-    patient_satisfaction FLOAT,
-    equipment_utilization FLOAT,
-    last_cleaned TIMESTAMP,
-    temperature_f FLOAT,
-    humidity_percent FLOAT,
-    co2_level FLOAT,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-  ```
-- [ ] Create API endpoints for metrics:
-  - GET /api/v1/metrics/floor/{floor_name}
-  - GET /api/v1/metrics/room/{room_id}
-  - POST /api/v1/metrics/floor
-  - POST /api/v1/metrics/room
-- [ ] Import data from CSV files
-- [ ] Add data validation and sanitization
-- [ ] Implement real-time updates via WebSocket
-
-### 2. Frontend-Backend Integration
-- [ ] Connect roomDataService to backend API
-- [ ] Add authentication to metrics endpoints
-- [ ] Implement WebSocket subscription for live updates
-- [ ] Add error handling for API failures
-- [ ] Create data caching layer
-
-## Medium Priority Tasks
+### 2. Floor Detail View Improvements
+- [ ] Add room filtering by metric thresholds
+- [ ] Implement room grouping by metric ranges
+- [ ] Add room search functionality
+- [ ] Create room layout editor for admin users
+- [ ] Add room equipment tracking
 
 ### 3. Data Visualization Enhancements
 - [ ] Add time-series view for metrics
-- [ ] Implement comparison view between floors
-- [ ] Add custom metric calculations
-- [ ] Create printable reports
-- [ ] Add data export functionality
+- [ ] Create custom color schemes for different metric types
+- [ ] Add metric trend indicators
+- [ ] Implement metric alerts and notifications
+- [ ] Add metric export functionality
 
-### 4. User Experience Improvements
-- [ ] Add loading states during data fetch
-- [ ] Implement error messages for data issues
-- [ ] Add tooltips for metric explanations
-- [ ] Create onboarding tutorial
-- [ ] Improve mobile responsiveness
+## Medium Priority Tasks
+
+### 4. Performance Optimization
+- [ ] Implement metric data caching
+- [ ] Add lazy loading for floor detail view
+- [ ] Optimize 3D model loading
+- [ ] Add WebGL fallbacks for low-end devices
+- [ ] Implement progressive loading for metrics data
+
+### 5. User Experience
+- [ ] Add onboarding tutorial
+- [ ] Create metric presets for different user roles
+- [ ] Add customizable dashboard layouts
+- [ ] Implement user preferences storage
+- [ ] Add keyboard shortcuts for common actions
+
+### 6. Analytics and Reporting
+- [ ] Create daily/weekly/monthly reports
+- [ ] Add metric trend analysis
+- [ ] Implement custom report builder
+- [ ] Add PDF export functionality
+- [ ] Create scheduled report generation
 
 ## Low Priority Tasks
 
-### 5. Analytics Features
-- [ ] Add trend analysis
-- [ ] Implement anomaly detection
-- [ ] Create scheduled reports
-- [ ] Add metric alerts
-- [ ] Implement custom dashboards
+### 7. Additional Features
+- [ ] Add mobile view support
+- [ ] Implement dark mode
+- [ ] Add multi-language support
+- [ ] Create API documentation
+- [ ] Add integration with other hospital systems
 
-### 6. Performance Optimization
-- [ ] Optimize 3D model loading
-- [ ] Add data pagination
-- [ ] Implement query caching
-- [ ] Optimize WebSocket updates
-- [ ] Add service worker for offline support
+### 8. Testing and Documentation
+- [ ] Add end-to-end tests for room metrics
+- [ ] Create user documentation
+- [ ] Add API usage examples
+- [ ] Create development guidelines
+- [ ] Add performance benchmarks
 
-## Technical Debt
-
-### 7. Code Quality
-- [ ] Add TypeScript strict mode
-- [ ] Improve error handling
-- [ ] Add unit tests
-- [ ] Update dependencies
-- [ ] Add API documentation
-
-### 8. Security
-- [ ] Add rate limiting to metrics API
-- [ ] Implement metrics access control
-- [ ] Add audit logging
-- [ ] Improve error messages
-- [ ] Add security headers
-
-## Future Enhancements
-
-### 9. Advanced Features
-- [ ] Add predictive analytics
-- [ ] Implement resource scheduling
-- [ ] Add equipment tracking
-- [ ] Create maintenance scheduling
-- [ ] Add environmental controls
-
-### 10. Infrastructure
-- [ ] Set up monitoring
-- [ ] Add automated backups
-- [ ] Implement load balancing
-- [ ] Add performance monitoring
-- [ ] Set up staging environment
+### 9. Future Enhancements
+- [ ] VR/AR support for visualization
+- [ ] Real-time equipment tracking
+- [ ] Integration with IoT sensors
+- [ ] AI-powered metric predictions
+- [ ] Advanced analytics dashboard
 
 ## Notes
-- Focus on database integration first
+- Focus on room metrics enhancements first
 - Ensure data consistency between frontend and backend
 - Maintain existing 3D visualization features
 - Document API changes
