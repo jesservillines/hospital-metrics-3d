@@ -4,6 +4,20 @@ A 3D visualization dashboard for hospital metrics using React Three Fiber and Fa
 
 ![Alt text](app_demo.jpg "Demo of 3d Hospital App")
 
+## Current Development Focus
+
+We are implementing room-level metrics visualization in the floor detail view. This includes:
+1. Separate control panel for room metrics
+2. Room-specific heatmap visualization
+3. Interactive room data display
+4. Color-coded metric visualization
+
+These features will allow users to:
+- View room-specific metrics in floor detail mode
+- Compare metrics across different rooms
+- Visualize room data through intuitive heatmaps
+- Access detailed room information on hover
+
 ## Project Overview
 
 This application visualizes hospital metrics across different floors and buildings in a 3D environment, allowing for intuitive data exploration and comparison. The visualization includes:

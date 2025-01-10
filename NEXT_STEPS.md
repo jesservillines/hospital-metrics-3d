@@ -1,5 +1,29 @@
 # Next Steps for Hospital Metrics 3D
 
+## Current Implementation Plan
+
+### Room Metrics Visualization
+1. Create RoomMetricsPanel Component
+   - [ ] Create new component for room metrics controls
+   - [ ] Add metric selection dropdown
+   - [ ] Add color scheme controls
+   - [ ] Position panel on right side of screen
+   - [ ] Show only in floor detail mode
+
+2. Update HospitalView Component
+   - [ ] Add state for selected room metrics
+   - [ ] Add state for room heatmap colors
+   - [ ] Pass room metric states to FloorDetail
+   - [ ] Handle room metric selection changes
+   - [ ] Manage panel visibility based on view mode
+
+3. Update FloorDetail Component
+   - [ ] Apply color mapping to rooms based on metrics
+   - [ ] Add hover effects for room data display
+   - [ ] Handle room metric updates
+   - [ ] Implement smooth color transitions
+   - [ ] Add room metric legends
+
 ## High Priority Tasks
 
 ### 1. Room Metrics Enhancements
