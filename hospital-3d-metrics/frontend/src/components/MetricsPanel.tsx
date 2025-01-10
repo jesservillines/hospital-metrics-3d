@@ -27,7 +27,6 @@ interface MetricsPanelProps {
 interface MetricGroups {
   'Patient Metrics': Metric[];
   'Staff Metrics': Metric[];
-  'Room Metrics': Metric[];
   [key: string]: Metric[];
 }
 
@@ -108,7 +107,7 @@ export function MetricsPanel({
     
     return metrics.filter(metric => 
       // Only show floor-level metrics
-      !metric.metric_name.startsWith('room_') && 
+      metric.metric_type === 'floor' && 
       // Filter by selected categories
       selectedCategories.includes(metric.metric_category) &&
       // Filter by selected metrics
@@ -122,8 +121,7 @@ export function MetricsPanel({
   const metricGroups = useMemo(() => {
     const groups: MetricGroups = {
       'Patient Metrics': [],
-      'Staff Metrics': [],
-      'Room Metrics': []
+      'Staff Metrics': []
     };
 
     filteredMetrics.forEach(metric => {

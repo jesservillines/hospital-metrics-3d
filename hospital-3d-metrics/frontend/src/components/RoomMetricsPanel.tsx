@@ -23,7 +23,7 @@ const RoomMetricsPanel: React.FC<RoomMetricsPanelProps> = ({
   if (!isVisible) return null;
 
   return (
-    <Card className="fixed top-4 right-4 w-[300px] z-50">
+    <Card className="fixed top-4 left-[calc(50%+1rem)] w-[300px] z-50 bg-white/90 hover:bg-white transition-colors">
       <CardHeader>
         <CardTitle>Room Metrics</CardTitle>
       </CardHeader>

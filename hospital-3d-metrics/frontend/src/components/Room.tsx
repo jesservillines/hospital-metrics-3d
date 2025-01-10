@@ -49,24 +49,21 @@ export function Room({
 
   const handleClick = useCallback((e: THREE.Event) => {
     e.stopPropagation();
-    console.log('Room clicked:', roomId, roomType);
     onRoomSelect(roomId);
-  }, [roomId, onRoomSelect]);
+  }, [onRoomSelect, roomId]);
 
   // Get the color based on the value
   const color = useMemo(() => {
     if (value === undefined) {
-      return new THREE.Color('#e0e0e0');
+      return new THREE.Color('#e0e0e0'); // Default gray for rooms without data
     }
-    const color = getColorForValue(value);
-    console.log('Room', roomId, 'color:', color.getHexString());
-    return color;
-  }, [value, getColorForValue, roomId]);
+    return getColorForValue(value);
+  }, [value, getColorForValue]);
 
   return (
     <group>
       <mesh
-        position={position}
+        position={new THREE.Vector3(...position)}
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
         onClick={handleClick}
@@ -76,8 +73,8 @@ export function Room({
         <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial
           color={color}
-          transparent={true}
-          opacity={hovered ? 0.8 : 1}
+          transparent
+          opacity={hovered ? 0.9 : 0.7}
           metalness={0.1}
           roughness={0.8}
           emissive={color}

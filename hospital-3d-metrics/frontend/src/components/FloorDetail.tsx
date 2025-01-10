@@ -164,53 +164,38 @@ export function FloorDetail({
 
   return (
     <group>
-      {/* Base floor plane */}
       <mesh
         position={[0, 0, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[100, 100]} />
+        <planeGeometry args={[30, 30]} />
         <meshStandardMaterial color="#f0f0f0" />
       </mesh>
 
-      {/* Close button */}
-      <mesh
-        position={[45, 2, 45]}
-        onClick={onClose}
-      >
-        <boxGeometry args={[4, 4, 4]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
-
-      {/* Rooms */}
       {floorRooms.map((room) => {
-        if (!room?.id || typeof room.x !== 'number' || typeof room.y !== 'number') {
-          console.warn('Invalid room data:', room);
-          return null;
-        }
-
-        // Find the metric for this room
+        // Find the metric value for this room
         const roomMetric = roomMetrics.find(m => m.room_id === room.id);
-        const value = roomMetric?.value;
-        
+        const metricValue = roomMetric?.value;
+
+        console.log('Room metric:', {
+          roomId: room.id,
+          metricValue,
+          selectedMetric
+        });
+
         return (
           <Room
             key={room.id}
-            position={[room.x, 1, room.y]}
-            width={room.width || 5}
-            height={2}
-            depth={room.height || 5}
+            position={[room.x, 0.1, room.y]} // Slightly above the floor
+            width={room.width}
+            height={1}
+            depth={room.height}
             roomId={room.id}
-            roomType={room.type || 'unknown'}
-            value={value}
-            onRoomSelect={(roomId) => {
-              console.log('Selected room:', roomId, room.name, 'metric value:', value);
-            }}
-            getColorForValue={(value) => {
-              // Always return a THREE.Color
-              return value === undefined ? new THREE.Color('#e0e0e0') : getColor(value);
-            }}
+            roomType={room.type}
+            value={metricValue}
+            onRoomSelect={(id) => console.log('Room selected:', id)}
+            getColorForValue={getColor}
           />
         );
       })}
