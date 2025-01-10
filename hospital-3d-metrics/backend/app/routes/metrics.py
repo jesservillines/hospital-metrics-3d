@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional
 from datetime import datetime
 import pandas as pd
@@ -14,6 +15,7 @@ from app.schemas.metrics import (
     RoomMetricCreate,
     RoomMetricResponse
 )
+from datetime import date
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -24,13 +26,14 @@ router = APIRouter()
 async def get_floor_metrics(
     metric_name: Optional[str] = None,
     category: Optional[str] = None,
+    date: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Get all floor metrics."""
     try:
         logger.info("Fetching all floor metrics")
-        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}")
+        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}, Date: {date}")
         
         query = db.query(FloorMetric)
         
@@ -38,18 +41,29 @@ async def get_floor_metrics(
             query = query.filter(FloorMetric.metric_name == metric_name)
         if category:
             query = query.filter(FloorMetric.metric_category == category)
+        if date:
+            # Convert date string to datetime and filter
+            try:
+                target_date = datetime.strptime(date, "%Y-%m-%d").date()
+                query = query.filter(func.date(FloorMetric.timestamp) == target_date)
+            except ValueError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid date format. Use YYYY-MM-DD format: {str(e)}"
+                )
             
         metrics = query.all()
         logger.info(f"Found {len(metrics)} floor metrics")
         if not metrics:
-            # Return empty list instead of 404 for better frontend handling
             return []
         return metrics
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error fetching floor metrics: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error fetching floor metrics: {str(e)}"
+            detail=str(e)
         )
 
 @router.get("/floors/{floor_id}", response_model=List[FloorMetricResponse])
@@ -57,13 +71,14 @@ async def get_specific_floor_metrics(
     floor_id: str,
     metric_name: Optional[str] = None,
     category: Optional[str] = None,
+    date: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Get metrics for a specific floor."""
     try:
         logger.info(f"Fetching metrics for floor {floor_id}")
-        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}")
+        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}, Date: {date}")
         
         query = db.query(FloorMetric).filter(FloorMetric.floor_id == floor_id)
         logger.debug(f"SQL Query: {str(query)}")
@@ -72,6 +87,16 @@ async def get_specific_floor_metrics(
             query = query.filter(FloorMetric.metric_name == metric_name)
         if category:
             query = query.filter(FloorMetric.metric_category == category)
+        if date:
+            # Convert date string to datetime and filter
+            try:
+                target_date = datetime.strptime(date, "%Y-%m-%d").date()
+                query = query.filter(func.date(FloorMetric.timestamp) == target_date)
+            except ValueError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid date format. Use YYYY-MM-DD format: {str(e)}"
+                )
             
         metrics = query.all()
         logger.info(f"Found {len(metrics)} metrics for floor {floor_id}")
@@ -82,6 +107,8 @@ async def get_specific_floor_metrics(
             return []
             
         return metrics
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error fetching floor metrics: {str(e)}", exc_info=True)
         logger.error(f"Floor ID: {floor_id}, User: {current_user.email}")
@@ -94,13 +121,14 @@ async def get_specific_floor_metrics(
 async def get_room_metrics(
     metric_name: Optional[str] = None,
     category: Optional[str] = None,
+    date: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Get all room metrics."""
     try:
         logger.info("Fetching all room metrics")
-        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}")
+        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}, Date: {date}")
         
         query = db.query(RoomMetric)
         
@@ -108,17 +136,29 @@ async def get_room_metrics(
             query = query.filter(RoomMetric.metric_name == metric_name)
         if category:
             query = query.filter(RoomMetric.metric_category == category)
+        if date:
+            # Convert date string to datetime and filter
+            try:
+                target_date = datetime.strptime(date, "%Y-%m-%d").date()
+                query = query.filter(func.date(RoomMetric.timestamp) == target_date)
+            except ValueError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid date format. Use YYYY-MM-DD format: {str(e)}"
+                )
             
         metrics = query.all()
         logger.info(f"Found {len(metrics)} room metrics")
         if not metrics:
             return []
         return metrics
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error fetching room metrics: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error fetching room metrics: {str(e)}"
+            detail=str(e)
         )
 
 @router.get("/floors/{floor_id}/rooms", response_model=List[RoomMetricResponse])
@@ -126,13 +166,14 @@ async def get_floor_room_metrics(
     floor_id: str,
     metric_name: Optional[str] = None,
     category: Optional[str] = None,
+    date: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Get room metrics for a specific floor."""
     try:
         logger.info(f"Fetching room metrics for floor {floor_id}")
-        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}")
+        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}, Date: {date}")
         
         # Build and execute the query
         query = db.query(RoomMetric).filter(RoomMetric.floor_id == floor_id)
@@ -142,6 +183,16 @@ async def get_floor_room_metrics(
             # Convert frontend category to backend format (e.g., 'Patient Metrics' -> 'patient')
             backend_category = category.lower().replace(' metrics', '')
             query = query.filter(RoomMetric.metric_category == backend_category)
+        if date:
+            # Convert date string to datetime and filter
+            try:
+                target_date = datetime.strptime(date, "%Y-%m-%d").date()
+                query = query.filter(func.date(RoomMetric.timestamp) == target_date)
+            except ValueError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid date format. Use YYYY-MM-DD format: {str(e)}"
+                )
             
         logger.debug(f"SQL Query: {query.statement.compile(compile_kwargs={'literal_binds': True})}")
         
@@ -180,6 +231,8 @@ async def get_floor_room_metrics(
             return []
             
         return transformed_metrics
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error fetching room metrics: {str(e)}", exc_info=True)
         logger.error(f"Floor ID: {floor_id}, User: {current_user.email}")
@@ -194,13 +247,14 @@ async def get_specific_room_metrics(
     room_id: str,
     metric_name: Optional[str] = None,
     category: Optional[str] = None,
+    date: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Get metrics for a specific room."""
     try:
         logger.info(f"Fetching metrics for room {room_id} on floor {floor_id}")
-        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}")
+        logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}, Date: {date}")
         
         query = db.query(RoomMetric).filter(
             RoomMetric.floor_id == floor_id,
@@ -211,12 +265,24 @@ async def get_specific_room_metrics(
             query = query.filter(RoomMetric.metric_name == metric_name)
         if category:
             query = query.filter(RoomMetric.metric_category == category)
+        if date:
+            # Convert date string to datetime and filter
+            try:
+                target_date = datetime.strptime(date, "%Y-%m-%d").date()
+                query = query.filter(func.date(RoomMetric.timestamp) == target_date)
+            except ValueError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Invalid date format. Use YYYY-MM-DD format: {str(e)}"
+                )
             
         metrics = query.all()
         logger.info(f"Found {len(metrics)} metrics for room {room_id} on floor {floor_id}")
         if not metrics:
             return []
         return metrics
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error fetching room metrics: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -359,4 +425,48 @@ async def create_room_metric(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error creating room metric: {str(e)}"
+        )
+
+@router.get("/date-range")
+async def get_metrics_date_range(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the earliest and latest dates available in the metrics data."""
+    try:
+        logger.info("Fetching metrics date range")
+        
+        # Query floor metrics dates
+        floor_min = db.query(func.min(FloorMetric.timestamp)).scalar()
+        floor_max = db.query(func.max(FloorMetric.timestamp)).scalar()
+        
+        # Query room metrics dates
+        room_min = db.query(func.min(RoomMetric.timestamp)).scalar()
+        room_max = db.query(func.max(RoomMetric.timestamp)).scalar()
+        
+        # Get overall min and max dates
+        min_date = min(floor_min, room_min) if floor_min and room_min else floor_min or room_min
+        max_date = max(floor_max, room_max) if floor_max and room_max else floor_max or room_max
+        
+        if not min_date or not max_date:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No metrics data found"
+            )
+        
+        # Format dates as YYYY-MM-DD
+        min_date_str = min_date.strftime("%Y-%m-%d")
+        max_date_str = max_date.strftime("%Y-%m-%d")
+        
+        logger.info(f"Found date range: {min_date_str} to {max_date_str}")
+        return {
+            "min_date": min_date_str,
+            "max_date": max_date_str
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching metrics date range: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
         )

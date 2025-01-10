@@ -7,8 +7,9 @@ import Garden from './Garden';
 import Controls from './Controls';
 import MetricsPanel from './MetricsPanel';
 import FloorDetail from './FloorDetail';
-import RoomMetricsPanel from './RoomMetricsPanel'; // Import RoomMetricsPanel
+import RoomMetricsPanel from './RoomMetricsPanel';
 import { SettingsWidget } from './SettingsWidget';
+import DateSlider from './DateSlider';
 import { useMetrics } from '../hooks/useMetrics';
 import { roomDataService } from '../services/roomDataService';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -50,22 +51,20 @@ const buildingConfigs = {
   }
 };
 
-export function HospitalView() {
+export default function HospitalView() {
   // State
   const [hoveredFloor, setHoveredFloor] = useState<string | null>(null);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('patient_satisfaction');
-  const [selectedRoomMetric, setSelectedRoomMetric] = useState<string>('fall_risk'); // Add state for selected room metric
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(FLOOR_LEVEL_METRICS.categories.slice(0, 2));
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(
-    FLOOR_LEVEL_METRICS.metrics
-      .filter(m => ['Patient Metrics', 'Staff Metrics'].includes(m.category))
-      .map(m => m.value)
-  );
+  const [selectedRoomMetric, setSelectedRoomMetric] = useState<string>('fall_risk');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Patient Metrics']);
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['patient_satisfaction']);
   const [showFloorDetail, setShowFloorDetail] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [heatmapColor, setHeatmapColor] = useState(DEFAULT_COLOR);
-  const [selectedRoomColor, setSelectedRoomColor] = useState<string>('#ff0000'); // Add state for selected room color
+  const [selectedRoomColor, setSelectedRoomColor] = useState<string>('#ff0000');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [debug, setDebug] = useState<any>({});
 
   // Debug log for initial state
   useEffect(() => {
@@ -90,6 +89,20 @@ export function HospitalView() {
     fetchAllFloorMetrics,
     fetchMetricsForFloor
   } = useMetrics();
+
+  // Add debug logging
+  useEffect(() => {
+    console.log('HospitalView State:', {
+      hoveredFloor,
+      selectedFloor,
+      selectedCategories,
+      selectedMetrics,
+      selectedDate,
+      metricsCount: currentMetrics?.length,
+      loading,
+      error
+    });
+  }, [hoveredFloor, selectedFloor, selectedCategories, selectedMetrics, selectedDate, currentMetrics, loading, error]);
 
   // Handle floor selection
   const handleFloorClick = useCallback(async (floor: string | null) => {
@@ -138,9 +151,9 @@ export function HospitalView() {
           floorName={selectedFloor}
           onClose={() => handleFloorClick(null)}
           metrics={roomMetrics}  
-          selectedMetric={selectedRoomMetric} // Update selected metric for floor detail
+          selectedMetric={selectedRoomMetric}
           roomsData={roomDataService}
-          selectedColor={selectedRoomColor} // Update selected color for floor detail
+          selectedColor={selectedRoomColor}
         />
       </group>
     );
@@ -165,36 +178,55 @@ export function HospitalView() {
     initData();
   }, [fetchAllFloorMetrics]);
 
-  // Filter metrics based on selection
+  // Filter metrics by date and other criteria
   const filteredMetrics = useMemo(() => {
-    // Ensure we have an array of metrics
-    const metricsArray = Array.isArray(currentMetrics) ? currentMetrics : [];
-    console.log('Current metrics before filtering:', metricsArray);
-    console.log('Filter criteria:', {
-      selectedMetric,
+    if (!currentMetrics) return [];
+
+    console.log('Filtering metrics:', {
+      totalMetrics: currentMetrics.length,
+      selectedDate,
       selectedCategories,
       selectedMetrics
     });
 
-    const filtered = metricsArray.filter(metric => {
-      // Only filter by selected metrics, not by selectedMetric
-      const matchesSelectedMetrics = selectedMetrics.includes(metric.metric_name);
-      const matchesCategory = selectedCategories.length === 0 || 
-        selectedCategories.includes(metric.metric_category);
-      
-      console.log('Filtering metric:', {
-        metric,
-        matchesSelectedMetrics,
-        matchesCategory,
-        selectedMetrics
-      });
-      
-      return matchesSelectedMetrics && matchesCategory;
+    const filtered = currentMetrics.filter(metric => {
+      // If no date is selected, show the latest date's metrics
+      if (!selectedDate) {
+        const dates = currentMetrics.map(m => m.timestamp.split('T')[0]);
+        const latestDate = dates.sort().pop();
+        return metric.timestamp.startsWith(latestDate!);
+      }
+
+      const metricDate = metric.timestamp.split('T')[0];
+      const dateMatches = metricDate === selectedDate;
+      const categoryMatches = selectedCategories.includes(metric.metric_category);
+      const metricMatches = selectedMetrics.includes(metric.metric_name);
+
+      const matches = dateMatches && (categoryMatches || metricMatches);
+
+      // Debug individual metric filtering
+      if (debug.metrics) {
+        console.log('Metric filtering:', {
+          metric: metric.metric_name,
+          floor: metric.floor_id,
+          date: metricDate,
+          dateMatches,
+          categoryMatches,
+          metricMatches,
+          included: matches
+        });
+      }
+
+      return matches;
     });
 
-    console.log('Filtered metrics result:', filtered);
+    console.log('Filtered metrics result:', {
+      filteredCount: filtered.length,
+      sampleMetric: filtered[0]
+    });
+
     return filtered;
-  }, [currentMetrics, selectedMetrics, selectedCategories]); // Remove selectedMetric from dependencies
+  }, [currentMetrics, selectedDate, selectedCategories, selectedMetrics, debug.metrics]);
 
   const handleMetricChange = useCallback(async (metric: string) => {
     setSelectedMetric(metric);
@@ -209,6 +241,22 @@ export function HospitalView() {
       await fetchMetricsForFloor(selectedFloor);
     }
   }, [selectedFloor, fetchMetricsForFloor]);
+
+  // Toggle debug mode with keyboard shortcut
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'd') {
+        setDebug(prev => ({
+          ...prev,
+          metrics: !prev.metrics
+        }));
+        console.log('Debug mode toggled');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   if (!isDataLoaded) {
     return <div>Loading...</div>;
@@ -267,6 +315,8 @@ export function HospitalView() {
         />
       )}
 
+      <DateSlider onDateChange={setSelectedDate} />
+
       <Canvas shadows>
         <PerspectiveCamera
           makeDefault
@@ -323,7 +373,7 @@ export function HospitalView() {
               hoveredFloor={hoveredFloor}
               selectedFloor={selectedFloor}
               selectedColor={heatmapColor}
-              metrics={currentMetrics} 
+              metrics={filteredMetrics} 
               selectedMetric={selectedMetric}
               rotation={[0, Math.PI / 2, 0]}
             />
@@ -351,5 +401,3 @@ export function HospitalView() {
     </div>
   );
 }
-
-export default HospitalView;

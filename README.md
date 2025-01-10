@@ -221,3 +221,6 @@ npm run dev
 
 ## Contributing
 Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+
+## Temporal Data Analysis
+- Date slider for exploring metrics across different time periods

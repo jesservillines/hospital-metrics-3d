@@ -61,35 +61,43 @@ async def login(
     response: Response,
     username: str = Form(...),
     password: str = Form(...),
+    grant_type: str = Form(None),
     remember_me: bool = Form(False),
     db: DBSession = Depends(get_db),
 ):
     """Handle login form submission."""
     try:
-        logger.info(f"Login attempt for username: {username}")
-        logger.info(f"Form data - remember_me: {remember_me}")
+        logger.info(f"Login attempt for username/email: {username}")
+        logger.info(f"Form data - grant_type: {grant_type}, remember_me: {remember_me}")
         
-        user = db.query(User).filter(User.username == username).first()
+        # Try to find user by username or email
+        user = db.query(User).filter(
+            (User.username == username) | (User.email == username)
+        ).first()
+        
         if not user:
             logger.warning(f"User not found: {username}")
-            return JSONResponse(
+            raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "Invalid username or password"}
+                detail="Invalid username/email or password",
+                headers={"WWW-Authenticate": "Bearer"},
             )
         
         logger.info(f"User found: {user.id}")
         if not verify_password(password, user.hashed_password):
             logger.warning(f"Invalid password for user: {username}")
-            return JSONResponse(
+            raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "Invalid username or password"}
+                detail="Invalid username/email or password",
+                headers={"WWW-Authenticate": "Bearer"},
             )
 
         if not user.is_active:
             logger.warning(f"Inactive user attempted login: {username}")
-            return JSONResponse(
+            raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "User is inactive"}
+                detail="User is inactive",
+                headers={"WWW-Authenticate": "Bearer"},
             )
 
         logger.info("Creating access token")
@@ -99,7 +107,7 @@ async def login(
             scopes=["user"],
             expires_delta=timedelta(minutes=oauth2_settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         )
-
+        
         # Create refresh token if remember_me is True
         refresh_token = None
         if remember_me:
@@ -108,54 +116,27 @@ async def login(
                 data={"sub": user.username},
                 scopes=["user"]
             )
-            response.set_cookie(
-                "refresh_token",
-                refresh_token,
-                max_age=oauth2_settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-                httponly=True,
-                secure=True if os.getenv("ENV") == "production" else False,
-                samesite="lax"
-            )
 
-        # Store session data
-        logger.info("Storing session data")
-        request.session["user_id"] = user.id
+        # Update last login time
+        user.last_login = datetime.utcnow()
+        db.commit()
 
-        try:
-            # Create user session record
-            logger.info("Creating user session record")
-            user_session = UserSession(
-                user_id=user.id,
-                session_token=access_token,
-                refresh_token=refresh_token,
-                expires_at=datetime.now() + timedelta(minutes=oauth2_settings.ACCESS_TOKEN_EXPIRE_MINUTES),
-                ip_address=request.client.host,
-                user_agent=request.headers.get("user-agent")
-            )
-            db.add(user_session)
-            db.commit()
-            logger.info("User session created successfully")
-        except Exception as session_error:
-            logger.error(f"Error creating user session: {str(session_error)}")
-            db.rollback()
-            raise
-
-        logger.info("Login successful, returning response")
-        return JSONResponse(
-            content={
-                "access_token": access_token,
-                "token_type": "bearer",
-                "refresh_token": refresh_token,
-                "success": True
-            }
-        )
-
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "refresh_token": refresh_token,
+            "expires_in": oauth2_settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            "scope": "user"
+        }
+        
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        logger.error(f"Login error: {str(e)}")
-        logger.exception("Full traceback:")
-        return JSONResponse(
+        logger.error(f"Login error: {str(e)}", exc_info=True)
+        raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"detail": f"Internal server error: {str(e)}"}
+            detail="Internal server error",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
 @router.get("/register")
