@@ -54,21 +54,24 @@ export function Building({
       m.metric_name === selectedMetric && 
       m.metric_type === 'floor'
     );
+
+    console.log('Building metrics processing:', {
+      name,
+      selectedMetric,
+      totalMetrics: metrics.length,
+      relevantMetrics: relevantMetrics.length,
+      metricsDetails: relevantMetrics.map(m => ({
+        floor: m.floor_id,
+        value: m.value
+      }))
+    });
+
     const metricValues = relevantMetrics.map(m => m.value);
 
     // Create color scale only if we have values
     const getColor = metricValues.length > 0
       ? createColorScale(metricValues, selectedColor)
       : null;
-
-    // Debug logging
-    console.log('Building metrics:', {
-      name,
-      selectedMetric,
-      metricValues,
-      relevantMetrics,
-      selectedColor
-    });
 
     for (let i = 0; i < floorCount; i++) {
       const floorNumber = i + 1;
@@ -79,7 +82,17 @@ export function Building({
       const floorY = (i * floorHeight) + (floorHeight / 2);
 
       // Get the metric value for this floor
-      const value = getMetricValue(metrics, floorId, selectedMetric, 'floor');
+      const floorMetric = relevantMetrics.find(m => m.floor_id === floorId);
+      const value = floorMetric?.value;
+
+      // Debug log for floor color calculation
+      console.log(`Floor ${displayName} calculation:`, {
+        floorId,
+        hasMetric: !!floorMetric,
+        value,
+        isSelected,
+        selectedColor
+      });
 
       // Determine floor color
       let floorColor = '#ffffff';
@@ -87,8 +100,9 @@ export function Building({
         floorColor = selectedColor;
       } else if (value !== undefined && getColor) {
         floorColor = '#' + getColor(value);
-        console.log(`Floor ${displayName} color:`, floorColor, 'value:', value);
       }
+
+      console.log(`Floor ${displayName} final color:`, floorColor);
 
       floors.push(
         <mesh

@@ -109,8 +109,18 @@ export default function HospitalView() {
     console.log('Floor clicked:', floor);
 
     if (floor === selectedFloor && showFloorDetail) {
+      console.log('Exiting floor detail mode...');
       setSelectedFloor(null);
       setShowFloorDetail(false);
+      
+      // Refetch all floor metrics when exiting floor detail mode
+      console.log('Refetching all metrics...');
+      try {
+        await fetchAllFloorMetrics();
+        console.log('Successfully refetched all metrics');
+      } catch (error) {
+        console.error('Error refetching metrics:', error);
+      }
       return;
     }
 
@@ -136,10 +146,30 @@ export default function HospitalView() {
         console.error('Error fetching floor metrics:', error);
       }
     } else {
+      console.log('Clearing floor selection...');
       setSelectedFloor(null);
       setShowFloorDetail(false);
+      
+      // Refetch all floor metrics when clearing floor selection
+      console.log('Refetching all metrics...');
+      try {
+        await fetchAllFloorMetrics();
+        console.log('Successfully refetched all metrics');
+      } catch (error) {
+        console.error('Error refetching metrics:', error);
+      }
     }
-  }, [fetchMetricsForFloor, selectedFloor, showFloorDetail]);
+  }, [fetchMetricsForFloor, selectedFloor, showFloorDetail, fetchAllFloorMetrics]);
+
+  // Effect to monitor metrics state
+  useEffect(() => {
+    console.log('Current metrics state:', {
+      totalMetrics: currentMetrics?.length,
+      selectedFloor,
+      showFloorDetail,
+      sampleMetrics: currentMetrics?.slice(0, 2)
+    });
+  }, [currentMetrics, selectedFloor, showFloorDetail]);
 
   // Render floor detail when a floor is selected
   const renderFloorDetail = useCallback(() => {
@@ -257,6 +287,44 @@ export default function HospitalView() {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
+
+  // Handle messages from Streamlit
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'config_update') {
+        const config = event.data.config;
+        console.log('Received config from Streamlit:', config);
+
+        // Update state based on Streamlit configuration
+        if (config.startDate) setSelectedDate(config.startDate);
+        if (config.metric) setSelectedMetric(config.metric);
+        if (config.categories) setSelectedCategories(config.categories);
+        if (config.colorScheme) setHeatmapColor(config.colorScheme);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  // Send updates to Streamlit
+  useEffect(() => {
+    const sendUpdate = () => {
+      if (window.parent) {
+        window.parent.postMessage({
+          type: 'metrics_update',
+          data: {
+            selectedFloor,
+            selectedMetric,
+            selectedCategories,
+            metrics: currentMetrics
+          }
+        }, '*');
+      }
+    };
+
+    sendUpdate();
+  }, [selectedFloor, selectedMetric, selectedCategories, currentMetrics]);
 
   if (!isDataLoaded) {
     return <div>Loading...</div>;

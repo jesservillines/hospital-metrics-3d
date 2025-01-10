@@ -133,15 +133,20 @@ export const useMetrics = () => {
       });
       
       // Store metrics in state
-      setMetrics({
-        floorMetrics: transformedFloorMetrics,
+      setMetrics(prev => ({
+        floorMetrics: [...prev.floorMetrics, ...transformedFloorMetrics],
         roomMetrics: transformedRoomMetrics
+      }));
+      
+      // Update currentMetrics by preserving existing metrics for other floors
+      setCurrentMetrics(prev => {
+        // Remove existing metrics for this floor
+        const otherFloorMetrics = prev.filter(m => m.floor_id !== floor);
+        // Add new metrics for this floor
+        return [...otherFloorMetrics, ...transformedFloorMetrics, ...transformedRoomMetrics];
       });
       
-      // Also update currentMetrics for consistency
-      setCurrentMetrics([...transformedFloorMetrics, ...transformedRoomMetrics]);
-      
-      return transformedRoomMetrics; // Return only room metrics as that's what FloorDetail needs
+      return transformedRoomMetrics;
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);
