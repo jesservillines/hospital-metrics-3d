@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from typing import Generator
 import logging
 from dotenv import load_dotenv
+from sqlalchemy import text
 
 # Load environment variables from .env file
 load_dotenv()
@@ -98,14 +99,66 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
 def check_db_connection():
-    """Test database connection"""
+    """Test database connection and verify room metrics data"""
     try:
         db = SessionLocal()
-        db.execute("SELECT 1")
+        
+        # Test connection
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
         logger.info("Database connection successful")
-        return True
+        
+        # Check room_metrics table
+        try:
+            result = db.execute(text("SELECT COUNT(*) FROM room_metrics")).scalar()
+            logger.info(f"Found {result} records in room_metrics table")
+            
+            # Sample some room metrics
+            sample = db.execute(text("""
+                SELECT floor_id, room_id, metric_name, metric_category, value 
+                FROM room_metrics 
+                LIMIT 5
+            """))
+            
+            if sample:
+                logger.info("Sample room metrics:")
+                for row in sample:
+                    logger.info(f"  Floor: {row.floor_id}, Room: {row.room_id}, "
+                              f"Metric: {row.metric_name}, Category: {row.metric_category}, "
+                              f"Value: {row.value}")
+            else:
+                logger.warning("No room metrics found in database")
+                
+        except Exception as table_error:
+            logger.error(f"Error checking room_metrics table: {str(table_error)}", exc_info=True)
+            
     except Exception as e:
-        logger.error(f"Database connection failed: {str(e)}")
-        return False
+        logger.error(f"Database connection error: {str(e)}")
+        raise
     finally:
         db.close()
+
+def check_room_metrics():
+    """Check room metrics in the database"""
+    try:
+        # Create a new session
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        
+        # Query room metrics
+        result = session.execute(text("SELECT * FROM room_metrics"))
+        rows = result.fetchall()
+        
+        logger.info(f"Found {len(rows)} room metrics in database")
+        for row in rows:
+            logger.info(f"Room Metric: {row}")
+            
+        return len(rows)
+    except Exception as e:
+        logger.error(f"Error checking room metrics: {str(e)}")
+        raise
+    finally:
+        session.close()
+
+if __name__ == "__main__":
+    check_room_metrics()

@@ -99,7 +99,7 @@ function RoomMesh({
                   <span className="text-gray-600">
                     {formatMetricName(metric.label)}:
                   </span>
-                  <span className="font-medium">{formatMetricValue(metric.value)}</span>
+                  <span className="font-medium">{formatMetricValue(metric.value, metric.label)}</span>
                 </React.Fragment>
               ))}
             </div>
@@ -111,19 +111,11 @@ function RoomMesh({
 };
 
 function getRelevantMetrics(room: Room, metrics: Array<{ metric_name: string; value: number }>) {
+  // Filter metrics based on room type from the metric_category field
   const relevantMetrics = metrics.filter(metric => {
-    switch (room.type) {
-      case 'patient':
-        return ['occupancy', 'room_temperature', 'humidity', 'fall_risk'].includes(metric.metric_name);
-      case 'therapy':
-        return ['equipment_utilization', 'occupancy_rate'].includes(metric.metric_name);
-      case 'nurse':
-        return ['staff_utilization', 'response_time'].includes(metric.metric_name);
-      case 'office':
-        return ['space_utilization', 'staff_occupancy'].includes(metric.metric_name);
-      default:
-        return false;
-    }
+    // The backend sends the category in the metric name or as a separate field
+    // We'll display all metrics that are sent for this room
+    return true;
   });
 
   return relevantMetrics.map(metric => ({
@@ -149,9 +141,44 @@ function formatMetricName(name: string): string {
     .join(' ');
 };
 
-function formatMetricValue(value: number): string {
-  if (value > 100) return value.toFixed(0);
-  return value.toFixed(1) + '%';
+function formatMetricValue(value: number, metricName: string): string {
+  // Infer the type of metric from its name and value
+  const name = metricName.toLowerCase();
+  
+  // Time-based metrics typically have "time", "hours", or "hrs" in the name
+  if (name.includes('time') || name.includes('hours') || name.includes('hrs')) {
+    return `${value.toFixed(1)} hrs`;
+  }
+  
+  // Count-based metrics typically have "count", "number", or "assigned" in the name
+  // or are whole numbers less than 100
+  if (name.includes('count') || name.includes('number') || name.includes('assigned') || 
+      (value < 100 && Number.isInteger(value))) {
+    return value.toFixed(0);
+  }
+  
+  // Risk-based metrics have "risk" in the name
+  if (name.includes('risk')) {
+    return `Level ${value.toFixed(0)}`;
+  }
+  
+  // Score-based metrics have "score" in the name
+  if (name.includes('score')) {
+    return value.toFixed(1);
+  }
+  
+  // Rate-based metrics have "rate" in the name
+  if (name.includes('rate')) {
+    return value.toFixed(1) + '%';
+  }
+  
+  // For metrics ending in "pct" or "percent" or have "completion" in the name
+  if (name.endsWith('pct') || name.includes('percent') || name.includes('completion')) {
+    return value.toFixed(1) + '%';
+  }
+  
+  // Default format: if value is between 0-100, treat as percentage, otherwise show fixed decimal
+  return (value >= 0 && value <= 100) ? value.toFixed(1) + '%' : value.toFixed(1);
 };
 
 function getFormattedRoomType(type: string): string {

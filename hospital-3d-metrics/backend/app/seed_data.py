@@ -6,6 +6,9 @@ from app.models import (
     MetricDefinition, MetricCategory,
     Floor, Room, RoomMetric, FloorMetric
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 def seed_metric_definitions():
     """Seed initial metric definitions"""
@@ -263,6 +266,98 @@ def load_csv_data():
         
         db.commit()
 
+def seed_room_metrics(db: Session):
+    """Seed room metrics data for testing"""
+    logger.info("Seeding room metrics data")
+    
+    # Sample room metrics data
+    room_metrics_data = [
+        # 3 West rooms
+        {
+            'floor_id': '3_west',
+            'room_id': '301',
+            'metric_name': 'fall_risk',
+            'value': 3.0,
+            'metric_category': 'patient',
+            'timestamp': datetime.utcnow()
+        },
+        {
+            'floor_id': '3_west',
+            'room_id': '301',
+            'metric_name': 'patient_satisfaction',
+            'value': 85.0,
+            'metric_category': 'patient',
+            'timestamp': datetime.utcnow()
+        },
+        {
+            'floor_id': '3_west',
+            'room_id': '302',
+            'metric_name': 'fall_risk',
+            'value': 2.0,
+            'metric_category': 'patient',
+            'timestamp': datetime.utcnow()
+        },
+        {
+            'floor_id': '3_west',
+            'room_id': '302',
+            'metric_name': 'patient_satisfaction',
+            'value': 92.0,
+            'metric_category': 'patient',
+            'timestamp': datetime.utcnow()
+        },
+        {
+            'floor_id': '3_west',
+            'room_id': '303',
+            'metric_name': 'fall_risk',
+            'value': 4.0,
+            'metric_category': 'patient',
+            'timestamp': datetime.utcnow()
+        },
+        {
+            'floor_id': '3_west',
+            'room_id': '303',
+            'metric_name': 'patient_satisfaction',
+            'value': 78.0,
+            'metric_category': 'patient',
+            'timestamp': datetime.utcnow()
+        },
+        {
+            'floor_id': '3_west',
+            'room_id': '304',
+            'metric_name': 'fall_risk',
+            'value': 1.0,
+            'metric_category': 'patient',
+            'timestamp': datetime.utcnow()
+        },
+        {
+            'floor_id': '3_west',
+            'room_id': '304',
+            'metric_name': 'patient_satisfaction',
+            'value': 95.0,
+            'metric_category': 'patient',
+            'timestamp': datetime.utcnow()
+        }
+    ]
+    
+    try:
+        # Clear existing room metrics
+        db.query(RoomMetric).delete()
+        db.commit()
+        logger.info("Cleared existing room metrics")
+        
+        # Insert new room metrics
+        for data in room_metrics_data:
+            room_metric = RoomMetric(**data)
+            db.add(room_metric)
+        
+        db.commit()
+        logger.info(f"Successfully seeded {len(room_metrics_data)} room metrics")
+        
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error seeding room metrics: {str(e)}")
+        raise
+
 def seed_all():
     """Run all seeding functions"""
     print("Seeding metric definitions...")
@@ -274,13 +369,62 @@ def seed_all():
     print("Seeding rooms...")
     seed_rooms()
     
+    print("Seeding room metrics...")
+    with get_db() as db:
+        seed_room_metrics(db)
+    
     print("Loading metrics data...")
     try:
         load_csv_data()
-        print("Successfully loaded metrics data")
     except Exception as e:
-        print(f"Error loading metrics data: {str(e)}")
+        print(f"Error loading CSV data: {e}")
+        
+    print("Seeding complete!")
+
+def check_room_metrics():
+    """Check room metrics in the database"""
+    db = next(get_db())
+    try:
+        room_metrics = db.query(RoomMetric).all()
+        print(f"\nFound {len(room_metrics)} room metrics in database:")
+        for metric in room_metrics:
+            print(f"Floor: {metric.floor_id}, Room: {metric.room_id}, Metric: {metric.metric_name}, Value: {metric.value}, Category: {metric.metric_category}")
+    except Exception as e:
+        print(f"Error checking room metrics: {str(e)}")
+    finally:
+        db.close()
+
+def check_and_seed_database():
+    """Check database schema and seed data if needed"""
+    db = next(get_db())
+    try:
+        # Check if room_metrics table exists and has data
+        room_metrics = db.query(RoomMetric).all()
+        print(f"\nFound {len(room_metrics)} room metrics in database")
+        
+        if not room_metrics:
+            print("No room metrics found. Seeding database...")
+            seed_room_metrics(db)
+            print("Database seeded successfully!")
+            
+            # Verify seeding
+            room_metrics = db.query(RoomMetric).all()
+            print(f"\nAfter seeding: Found {len(room_metrics)} room metrics in database:")
+            for metric in room_metrics:
+                print(f"Floor: {metric.floor_id}, Room: {metric.room_id}, "
+                      f"Metric: {metric.metric_name}, Value: {metric.value}, "
+                      f"Category: {metric.metric_category}")
+        else:
+            print("\nExisting room metrics:")
+            for metric in room_metrics:
+                print(f"Floor: {metric.floor_id}, Room: {metric.room_id}, "
+                      f"Metric: {metric.metric_name}, Value: {metric.value}, "
+                      f"Category: {metric.metric_category}")
+    except Exception as e:
+        print(f"Error checking/seeding database: {str(e)}")
         raise
+    finally:
+        db.close()
 
 if __name__ == '__main__':
-    seed_all()
+    check_and_seed_database()

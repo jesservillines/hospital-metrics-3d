@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { Vector3, Euler } from 'three';
-import { getColorScale } from '../utils/colorScales';
+import { createColorScale, getMetricValue } from '../utils/colorUtils';
 
 interface BuildingProps {
   name: string;
@@ -18,9 +18,11 @@ interface BuildingProps {
   selectedColor: string;
   metrics: Array<{
     floor_id: string;
+    room_id?: string;
     metric_name: string;
     value: number;
     timestamp: string;
+    metric_type: 'floor' | 'room';
   }>;
   selectedMetric: string;
   rotation?: [number, number, number];
@@ -48,12 +50,15 @@ export function Building({
     const floors = [];
 
     // Filter metrics for the selected metric type only
-    const relevantMetrics = metrics.filter(m => m.metric_name === selectedMetric);
+    const relevantMetrics = metrics.filter(m => 
+      m.metric_name === selectedMetric && 
+      m.metric_type === 'floor'
+    );
     const metricValues = relevantMetrics.map(m => m.value);
 
     // Create color scale only if we have values
-    const colorScale = metricValues.length > 0
-      ? getColorScale(metricValues)
+    const getColor = metricValues.length > 0
+      ? createColorScale(metricValues, selectedColor)
       : null;
 
     // Debug logging
@@ -61,7 +66,8 @@ export function Building({
       name,
       selectedMetric,
       metricValues,
-      relevantMetrics
+      relevantMetrics,
+      selectedColor
     });
 
     for (let i = 0; i < floorCount; i++) {
@@ -72,16 +78,16 @@ export function Building({
       const isSelected = selectedFloor === displayName;
       const floorY = (i * floorHeight) + (floorHeight / 2);
 
-      // Find the metric for this floor
-      const floorMetric = relevantMetrics.find(m => m.floor_id === floorId);
+      // Get the metric value for this floor
+      const value = getMetricValue(metrics, floorId, selectedMetric, 'floor');
 
       // Determine floor color
       let floorColor = '#ffffff';
       if (isSelected) {
         floorColor = selectedColor;
-      } else if (floorMetric && colorScale) {
-        floorColor = colorScale(floorMetric.value);
-        console.log(`Floor ${displayName} color:`, floorColor, 'value:', floorMetric.value);
+      } else if (value !== undefined && getColor) {
+        floorColor = '#' + getColor(value);
+        console.log(`Floor ${displayName} color:`, floorColor, 'value:', value);
       }
 
       floors.push(

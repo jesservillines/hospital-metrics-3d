@@ -31,8 +31,14 @@ class RoomMetricBase(BaseModel):
 class RoomMetricCreate(RoomMetricBase):
     pass
 
-class RoomMetricResponse(RoomMetricBase):
-    id: int
+class RoomMetricResponse(BaseModel):
+    floor_id: str
+    room_id: str
+    metric_name: str
+    value: float
+    metric_category: str
+    timestamp: Optional[datetime] = None
+    metric_type: str = 'room'
 
     class Config:
         from_attributes = True

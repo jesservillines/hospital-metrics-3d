@@ -7,6 +7,7 @@ import Garden from './Garden';
 import Controls from './Controls';
 import MetricsPanel from './MetricsPanel';
 import FloorDetail from './FloorDetail';
+import RoomMetricsPanel from './RoomMetricsPanel'; // Import RoomMetricsPanel
 import { SettingsWidget } from './SettingsWidget';
 import { useMetrics } from '../hooks/useMetrics';
 import { roomDataService } from '../services/roomDataService';
@@ -54,11 +55,27 @@ export function HospitalView() {
   const [hoveredFloor, setHoveredFloor] = useState<string | null>(null);
   const [selectedFloor, setSelectedFloor] = useState<string | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<string>('patient_satisfaction');
+  const [selectedRoomMetric, setSelectedRoomMetric] = useState<string>('fall_risk'); // Add state for selected room metric
   const [selectedCategories, setSelectedCategories] = useState<string[]>(FLOOR_LEVEL_METRICS.categories.slice(0, 2));
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(FLOOR_LEVEL_METRICS.metrics.filter(m => ['Patient Metrics', 'Staff Metrics'].includes(m.category)).map(m => m.value));
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(
+    FLOOR_LEVEL_METRICS.metrics
+      .filter(m => ['Patient Metrics', 'Staff Metrics'].includes(m.category))
+      .map(m => m.value)
+  );
   const [showFloorDetail, setShowFloorDetail] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [heatmapColor, setHeatmapColor] = useState(DEFAULT_COLOR);
+  const [selectedRoomColor, setSelectedRoomColor] = useState<string>('#ff0000'); // Add state for selected room color
+
+  // Debug log for initial state
+  useEffect(() => {
+    console.log('Initial state:', {
+      selectedMetric,
+      selectedCategories,
+      selectedMetrics,
+      FLOOR_LEVEL_METRICS
+    });
+  }, [selectedMetric, selectedCategories, selectedMetrics]);
 
   // Refs
   const controlsRef = useRef<any>(null);
@@ -66,31 +83,13 @@ export function HospitalView() {
 
   // Hooks
   const {
-    metrics,
+    metrics: { floorMetrics, roomMetrics },
+    currentMetrics,
     loading,
     error,
-    fetchFloorMetrics,
-    fetchHeatmapData,
-    currentMetrics,
     fetchAllFloorMetrics,
     fetchMetricsForFloor
   } = useMetrics();
-
-  // Initialize room data
-  useEffect(() => {
-    const initData = async () => {
-      try {
-        await roomDataService.loadFromCSV('/data/floor_layout.csv');
-        await fetchAllFloorMetrics();
-        setIsDataLoaded(true);
-        console.log('Room data loaded successfully');
-      } catch (error) {
-        console.error('Error loading data:', error);
-      }
-    };
-
-    initData();
-  }, [fetchAllFloorMetrics]);
 
   // Handle floor selection
   const handleFloorClick = useCallback(async (floor: string | null) => {
@@ -103,12 +102,21 @@ export function HospitalView() {
     }
 
     if (floor) {
-      const [floorNumber, wing] = floor.split(' ');
-      const floorId = `${floorNumber}_${wing.toLowerCase()}`;
-      console.log('Fetching metrics for floor:', floorId);
-      
       try {
-        await fetchMetricsForFloor(floorId);
+        // The floor name comes as "4 West", convert to "4_west" to match database format
+        const [floorNumber, wing] = floor.split(' ');
+        const floorId = `${floorNumber}_${wing.toLowerCase()}`;
+        console.log('Floor ID for API:', floorId);
+        
+        // Fetch metrics for the floor
+        const roomMetrics = await fetchMetricsForFloor(floorId);
+        console.log('Fetched room metrics for floor:', roomMetrics);
+        
+        if (roomMetrics.length === 0) {
+          console.warn('No room metrics found for floor:', floorId);
+        }
+        
+        // Update the selected floor and show detail
         setSelectedFloor(floor);
         setShowFloorDetail(true);
       } catch (error) {
@@ -120,35 +128,90 @@ export function HospitalView() {
     }
   }, [fetchMetricsForFloor, selectedFloor, showFloorDetail]);
 
+  // Render floor detail when a floor is selected
+  const renderFloorDetail = useCallback(() => {
+    if (!selectedFloor || !showFloorDetail) return null;
+
+    return (
+      <group position={[0, EXPLOSION_HEIGHT, 0]}>
+        <FloorDetail
+          floorName={selectedFloor}
+          onClose={() => handleFloorClick(null)}
+          metrics={roomMetrics}  
+          selectedMetric={selectedRoomMetric} // Update selected metric for floor detail
+          roomsData={roomDataService}
+          selectedColor={selectedRoomColor} // Update selected color for floor detail
+        />
+      </group>
+    );
+  }, [selectedFloor, showFloorDetail, roomMetrics, selectedRoomMetric, selectedRoomColor, handleFloorClick]);
+
+  // Initialize room data
+  useEffect(() => {
+    const initData = async () => {
+      try {
+        console.log('Starting to load room data...');
+        await roomDataService.loadFromCSV('/data/floor_layout.csv');
+        console.log('Room data loaded successfully');
+        
+        // After room data is loaded, fetch initial metrics
+        await fetchAllFloorMetrics();
+        setIsDataLoaded(true);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    };
+
+    initData();
+  }, [fetchAllFloorMetrics]);
+
+  // Filter metrics based on selection
+  const filteredMetrics = useMemo(() => {
+    // Ensure we have an array of metrics
+    const metricsArray = Array.isArray(currentMetrics) ? currentMetrics : [];
+    console.log('Current metrics before filtering:', metricsArray);
+    console.log('Filter criteria:', {
+      selectedMetric,
+      selectedCategories,
+      selectedMetrics
+    });
+
+    const filtered = metricsArray.filter(metric => {
+      // Only filter by selected metrics, not by selectedMetric
+      const matchesSelectedMetrics = selectedMetrics.includes(metric.metric_name);
+      const matchesCategory = selectedCategories.length === 0 || 
+        selectedCategories.includes(metric.metric_category);
+      
+      console.log('Filtering metric:', {
+        metric,
+        matchesSelectedMetrics,
+        matchesCategory,
+        selectedMetrics
+      });
+      
+      return matchesSelectedMetrics && matchesCategory;
+    });
+
+    console.log('Filtered metrics result:', filtered);
+    return filtered;
+  }, [currentMetrics, selectedMetrics, selectedCategories]); // Remove selectedMetric from dependencies
+
   const handleMetricChange = useCallback(async (metric: string) => {
     setSelectedMetric(metric);
     if (selectedFloor) {
-      await fetchHeatmapData(selectedFloor, metric);
+      await fetchMetricsForFloor(selectedFloor);
     }
-  }, [selectedFloor, fetchHeatmapData]);
+  }, [selectedFloor, fetchMetricsForFloor]);
 
-  const getFilteredMetrics = useCallback((metrics: any[]) => {
-    // Get the mapping of metric names to categories
-    const metricCategories = Object.fromEntries(
-      FLOOR_LEVEL_METRICS.metrics.map(m => [m.value, m.category])
-    );
+  const handleRoomMetricChange = useCallback(async (metric: string) => {
+    setSelectedRoomMetric(metric);
+    if (selectedFloor) {
+      await fetchMetricsForFloor(selectedFloor);
+    }
+  }, [selectedFloor, fetchMetricsForFloor]);
 
-    return metrics.filter(metric => {
-      const category = metricCategories[metric.metric_name];
-      return (
-        metric.metric_type === 'floor' &&
-        selectedMetrics.includes(metric.metric_name) &&
-        selectedCategories.includes(category)
-      );
-    });
-  }, [selectedMetrics, selectedCategories]);
-
-  if (loading || !isDataLoaded) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <div className="text-lg">Loading hospital data...</div>
-      </div>
-    );
+  if (!isDataLoaded) {
+    return <div>Loading...</div>;
   }
 
   if (error) {
@@ -172,6 +235,18 @@ export function HospitalView() {
         availableMetrics={FLOOR_LEVEL_METRICS}
       />
 
+      <RoomMetricsPanel
+        selectedMetric={selectedRoomMetric}
+        onMetricChange={handleRoomMetricChange}
+        metricOptions={[
+          { value: 'fall_risk', label: 'Patient Fall Risk' },
+          { value: 'patient_satisfaction', label: 'Patient Satisfaction' }
+        ]}
+        selectedColor={selectedRoomColor}
+        onColorChange={setSelectedRoomColor}
+        isVisible={showFloorDetail}
+      />
+
       <SettingsWidget
         onColorChange={setHeatmapColor}
         currentColor={heatmapColor}
@@ -181,7 +256,7 @@ export function HospitalView() {
         <MetricsPanel
           hoveredFloor={hoveredFloor}
           selectedFloor={selectedFloor}
-          metrics={getFilteredMetrics(currentMetrics)}
+          metrics={filteredMetrics} 
           selectedCategories={selectedCategories}
           selectedMetrics={selectedMetrics}
           showFloorDetail={showFloorDetail}
@@ -248,7 +323,7 @@ export function HospitalView() {
               hoveredFloor={hoveredFloor}
               selectedFloor={selectedFloor}
               selectedColor={heatmapColor}
-              metrics={currentMetrics}
+              metrics={currentMetrics} 
               selectedMetric={selectedMetric}
               rotation={[0, Math.PI / 2, 0]}
             />
@@ -271,27 +346,7 @@ export function HospitalView() {
         </group>
 
         {/* Floor Detail View */}
-        {showFloorDetail && selectedFloor && (
-          <group position={[0, EXPLOSION_HEIGHT, 0]}>
-            <FloorDetail
-              floorName={selectedFloor}
-              onClose={() => {
-                setSelectedFloor(null);
-                setShowFloorDetail(false);
-                // Reset camera position
-                if (controlsRef.current) {
-                  controlsRef.current.target.set(0, 0, 0);
-                  controlsRef.current.object.position.copy(initialPosition);
-                  controlsRef.current.update();
-                }
-              }}
-              metrics={currentMetrics}
-              selectedMetric={selectedMetric}
-              roomsData={roomDataService}
-              selectedColor={heatmapColor}
-            />
-          </group>
-        )}
+        {renderFloorDetail()}
       </Canvas>
     </div>
   );

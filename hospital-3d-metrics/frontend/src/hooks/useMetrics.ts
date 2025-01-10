@@ -23,10 +23,23 @@ interface DetailedMetrics {
   roomMetrics: Metric[];
 }
 
-const transformApiMetric = (apiMetric: ApiMetric): Metric => ({
-  ...apiMetric,
-  metric_type: 'floor'
-});
+const transformApiMetric = (apiMetric: ApiMetric): Metric => {
+  // Map backend categories to frontend categories
+  let category = apiMetric.metric_category;
+  if (category.toLowerCase() === 'patient') {
+    category = 'Patient Metrics';
+  } else if (category.toLowerCase() === 'staff') {
+    category = 'Staff Metrics';
+  } else if (category.toLowerCase() === 'room') {
+    category = 'Room Metrics';
+  }
+
+  return {
+    ...apiMetric,
+    metric_category: category,
+    metric_type: 'floor'
+  };
+};
 
 export const useMetrics = () => {
   const { accessToken } = useAuth();
@@ -63,11 +76,17 @@ export const useMetrics = () => {
       const eastFloors = ['1_east', '2_east', '3_east'];
       const allFloors = [...westFloors, ...eastFloors];
       
+      console.log('Fetching metrics for floors:', allFloors);
+      
       const allMetrics = await Promise.all(
         allFloors.map(floor => fetchFloorMetricsApi(floor, accessToken))
       );
       
+      console.log('Raw metrics from API:', allMetrics);
+      
       const flattenedMetrics = allMetrics.flat().map(transformApiMetric);
+      console.log('Transformed metrics:', flattenedMetrics);
+      
       setCurrentMetrics(flattenedMetrics);
       
     } catch (err) {
@@ -87,18 +106,46 @@ export const useMetrics = () => {
     
     try {
       setLoading(true);
-      const floorMetrics = await fetchFloorMetricsApi(floor, accessToken);
-      const roomMetrics = await fetchRoomMetricsApi(floor, accessToken);
+      console.log('Fetching metrics for floor:', floor);
       
-      setMetrics({
-        floorMetrics: floorMetrics.map(transformApiMetric),
-        roomMetrics: roomMetrics.map(m => ({ ...transformApiMetric(m), metric_type: 'room' }))
+      // Fetch both floor metrics and room metrics
+      const [floorMetrics, roomMetrics] = await Promise.all([
+        fetchFloorMetricsApi(floor, accessToken),
+        fetchFloorRoomMetricsApi(floor, accessToken)
+      ]);
+      
+      console.log('Raw API response:', {
+        floorMetrics,
+        roomMetrics
       });
       
-      return floorMetrics;
+      // Transform metrics
+      const transformedFloorMetrics = floorMetrics.map(transformApiMetric);
+      const transformedRoomMetrics = roomMetrics.map(m => ({
+        ...transformApiMetric(m),
+        metric_type: 'room',
+        room_id: m.room_id
+      }));
+      
+      console.log('Transformed metrics:', {
+        floorMetrics: transformedFloorMetrics,
+        roomMetrics: transformedRoomMetrics
+      });
+      
+      // Store metrics in state
+      setMetrics({
+        floorMetrics: transformedFloorMetrics,
+        roomMetrics: transformedRoomMetrics
+      });
+      
+      // Also update currentMetrics for consistency
+      setCurrentMetrics([...transformedFloorMetrics, ...transformedRoomMetrics]);
+      
+      return transformedRoomMetrics; // Return only room metrics as that's what FloorDetail needs
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);
+      console.error('Error fetching metrics:', err);
       return [];
     } finally {
       setLoading(false);

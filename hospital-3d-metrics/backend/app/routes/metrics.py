@@ -134,20 +134,55 @@ async def get_floor_room_metrics(
         logger.info(f"Fetching room metrics for floor {floor_id}")
         logger.debug(f"User: {current_user.email}, Metric: {metric_name}, Category: {category}")
         
+        # Build and execute the query
         query = db.query(RoomMetric).filter(RoomMetric.floor_id == floor_id)
-        
         if metric_name:
             query = query.filter(RoomMetric.metric_name == metric_name)
         if category:
-            query = query.filter(RoomMetric.metric_category == category)
+            # Convert frontend category to backend format (e.g., 'Patient Metrics' -> 'patient')
+            backend_category = category.lower().replace(' metrics', '')
+            query = query.filter(RoomMetric.metric_category == backend_category)
             
+        logger.debug(f"SQL Query: {query.statement.compile(compile_kwargs={'literal_binds': True})}")
+        
+        # Execute query and log results
         metrics = query.all()
-        logger.info(f"Found {len(metrics)} room metrics for floor {floor_id}")
-        if not metrics:
+        logger.info(f"Found {len(metrics)} metrics for floor {floor_id}")
+        
+        # Transform metrics to match frontend expectations
+        transformed_metrics = []
+        for metric in metrics:
+            # Map backend categories to frontend categories
+            category = metric.metric_category
+            if category == 'patient':
+                frontend_category = 'Patient Metrics'
+            elif category == 'staff':
+                frontend_category = 'Staff Metrics'
+            elif category == 'room':
+                frontend_category = 'Room Metrics'
+            else:
+                frontend_category = f"{category.title()} Metrics"
+                
+            transformed_metric = RoomMetricResponse(
+                floor_id=metric.floor_id,
+                room_id=metric.room_id,
+                metric_name=metric.metric_name,
+                value=float(metric.value),
+                metric_category=frontend_category,
+                timestamp=metric.timestamp,
+                metric_type='room'
+            )
+            logger.debug(f"Transformed metric: {transformed_metric}")
+            transformed_metrics.append(transformed_metric)
+            
+        if not transformed_metrics:
+            logger.warning(f"No metrics found for floor {floor_id}")
             return []
-        return metrics
+            
+        return transformed_metrics
     except Exception as e:
         logger.error(f"Error fetching room metrics: {str(e)}", exc_info=True)
+        logger.error(f"Floor ID: {floor_id}, User: {current_user.email}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error fetching room metrics: {str(e)}"

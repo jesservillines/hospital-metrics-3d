@@ -185,6 +185,11 @@ export function Controls({
                           const newSelection = selectedMetrics.includes(metric.value)
                             ? selectedMetrics.filter(m => m !== metric.value)
                             : [...selectedMetrics, metric.value];
+                          console.log('Metric selection changed:', {
+                            metric,
+                            wasSelected: selectedMetrics.includes(metric.value),
+                            newSelection
+                          });
                           onMetricsSelectionChange(newSelection);
                         }}
                       >
