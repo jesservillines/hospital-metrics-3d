@@ -243,16 +243,60 @@ def run():
                         plot_data.append(scenario_df)
                     
                     # Combine all data
-                    all_data = pd.concat(plot_data)
+                    all_data = pd.concat(plot_data, ignore_index=True)
                     
-                    # Create chart
-                    chart = alt.Chart(all_data).mark_line().encode(
-                        x=alt.X('Date:T', title='Date'),
-                        y=alt.Y('Value:Q', title='Predicted Referrals'),
-                        color=alt.Color('Scenario:N', title='Scenario'),
-                        tooltip=['Date:T', 'Value:Q', 'Scenario:N']
-                    ).properties(
-                        width=800,
+                    # Create base chart
+                    base = alt.Chart(all_data).encode(
+                        x=alt.X('Date:T', title='Date')
+                    )
+                    
+                    # Create a selection for highlighting on hover
+                    hover = alt.selection_single(
+                        fields=['Date'],
+                        nearest=True,
+                        on='mouseover',
+                        empty='none',
+                    )
+                    
+                    # Add points for hover interaction
+                    points = base.mark_circle().encode(
+                        x='Date:T',
+                        y=alt.Y('Value:Q', title='Number of Referrals'),
+                        opacity=alt.value(0),
+                        tooltip=[
+                            alt.Tooltip('Date:T', title='Date'),
+                            alt.Tooltip('Value:Q', title='Predicted Referrals', format=','),
+                            alt.Tooltip('Scenario:N', title='Scenario')
+                        ]
+                    ).add_selection(hover)
+                    
+                    # Create color scale for scenarios
+                    color_scale = alt.Scale(
+                        domain=['Baseline'] + list(scenario_results.keys()),
+                        range=['#2ca02c'] + ['#1f77b4', '#ff7f0e', '#9467bd', '#d62728'][:len(scenario_results)]
+                    )
+                    
+                    # Draw the lines for each scenario
+                    lines = base.mark_line(strokeWidth=2).encode(
+                        y=alt.Y('Value:Q', title='Number of Referrals'),
+                        color=alt.Color('Scenario:N', 
+                                      scale=color_scale,
+                                      legend=alt.Legend(title='Scenario', orient='top')),
+                        tooltip=[
+                            alt.Tooltip('Date:T', title='Date'),
+                            alt.Tooltip('Value:Q', title='Predicted Referrals', format=','),
+                            alt.Tooltip('Scenario:N', title='Scenario')
+                        ]
+                    )
+                    
+                    # Add a rule mark to highlight on hover
+                    rule = base.mark_rule(color='gray').encode(
+                        x='Date:T'
+                    ).transform_filter(hover)
+                    
+                    # Combine all the layers
+                    chart = alt.layer(lines, points, rule).properties(
+                        width=600,
                         height=400,
                         title='Scenario Comparison'
                     ).interactive()
